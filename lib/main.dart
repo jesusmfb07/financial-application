@@ -132,19 +132,19 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectedIndex = index;
       switch(_selectedIndex)  {
         case 0:
-          textToDisplay = '$_selectedIndex : Home';
+          textToDisplay = '$_selectedIndex : Interface chats';
           break;
         case 1:
-          textToDisplay = '1 : Reports';
+          textToDisplay = 'interface : Reportes';
           break;
         case 2:
-          textToDisplay = '2 : Calendar';
+          textToDisplay = 'interface : Calendar';
           break;
         case 3:
-          textToDisplay = '3 : Settings';
+          textToDisplay = 'interface : Ajustes';
           break;
         default:
-          textToDisplay = '0 : Home';
+          textToDisplay = 'interface : chats';
           break;
       }
     });
