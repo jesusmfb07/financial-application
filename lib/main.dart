@@ -1,6 +1,6 @@
+
 import 'package:flutter/material.dart';
-import 'chat/ui/pages/chat_page.dart';
-import 'chat/infrastructure/adapters/chat_adapter.dart';
+import 'chat/ui/pages/expense_manager_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,8 +11,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Gestor de Gastos',
-      debugShowCheckedModeBanner: false,
-      home: ChatPage(adapter: ChatAdapter()),
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: ExpenseManagerPage(),
     );
   }
 }
