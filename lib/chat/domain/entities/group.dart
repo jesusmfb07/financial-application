@@ -1,6 +1,8 @@
-class Group {
-  final int id;
-  final String name;
+import 'contact.dart'; // Asegúrate de importar la entidad Contacto correcta desde domain
 
-  Group(this.id, this.name);
+class Group {
+  final String name;
+  final List<Contact> members;
+
+  Group(this.name, this.members);
 }

@@ -112,11 +112,12 @@ import 'package:flutter/cupertino.dart';
 
 import '../../domain/entities/group.dart';
 import '../../application/use_cases/get_groups.dart';
-import '../../application/ports/group_port.dart';
+
 import '../../infrastructure/adapters/group_adapter.dart';
 import '../widgets/group_title.dart';
 import '../widgets/my_finances.dart';
-import 'create_contact_page.dart'; // Importa la nueva página
+import 'create_contact_page.dart';
+import 'new_group_page.dart'; // Importa la nueva página
 
 class ExpenseManagerPage extends StatefulWidget {
   @override
@@ -142,7 +143,10 @@ class _ExpenseManagerPageState extends State<ExpenseManagerPage> {
   void _onMenuSelected(String value) {
     switch (value) {
       case 'addGroup':
-      // Lógica para añadir un grupo
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NewGroupPage()),
+        );
         break;
       case 'addContact':
         Navigator.push(
