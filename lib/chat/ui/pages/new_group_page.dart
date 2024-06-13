@@ -5,7 +5,7 @@ import '../../application/use_cases/create_group.dart';
 import '../../domain/entities/contact.dart';
 import '../../infrastructure/adapters/contact_adapter.dart';
 import '../../infrastructure/adapters/group_adapter.dart';
-import 'create_contact_page.dart';
+import 'create_contact_page.dart'; // Asegúrate de tener esta importación
 
 class NewGroupPage extends StatefulWidget {
   @override
@@ -65,22 +65,25 @@ class _NewGroupPageState extends State<NewGroupPage> {
         title: Text('Nuevo Grupo'),
         actions: [
           IconButton(
-            icon: Icon(Icons.person_add_alt_1),
+            icon: Icon(Icons.account_circle_rounded),
             onPressed: () {
-               Navigator.push(
+              Navigator.push(
                 context,
-              MaterialPageRoute(builder: (context) => CreateContactPage()),
+                MaterialPageRoute(builder: (context) => CreateContactPage()),
               );
-             },
+            },
           ),
         ],
       ),
       body: Column(
         children: [
-          TextField(
-            onChanged: _updateSearch,
-            decoration: InputDecoration(
-              hintText: 'Buscar contacto',
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0), // Ajusta el valor según tus necesidades
+            child: TextField(
+              onChanged: _updateSearch,
+              decoration: InputDecoration(
+                hintText: 'Buscar contacto',
+              ),
             ),
           ),
           Expanded(
