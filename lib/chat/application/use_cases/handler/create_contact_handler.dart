@@ -1,16 +1,14 @@
-// lib/application/use_cases/create_contact_handler.dart
 import '../../../domain/entities/contact.dart';
-import '../../../infrastructure/adapters/chat_adapter.dart';
+import '../../../infrastructure/adapters/database_adapter.dart'; // Cambiado a DatabaseAdapter
 import 'command/create_contact_command.dart';
 
-
 class CreateContactHandler {
-  final ChatAdapter chatAdapter;
+  final DatabaseAdapter databaseAdapter;
 
-  CreateContactHandler(this.chatAdapter);
+  CreateContactHandler(this.databaseAdapter);
 
   void handle(CreateContactCommand command) {
-    final contact = Contact( command.name, command.lastName);
-    chatAdapter.addContact(contact);
+    final contact = Contact(command.name, command.lastName);
+    databaseAdapter.addContact(contact);
   }
 }

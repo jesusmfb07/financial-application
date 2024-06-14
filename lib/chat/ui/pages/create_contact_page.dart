@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../application/use_cases/handler/command/create_contact_command.dart';
-import '../../application/use_cases/handler/create_contact_handler.dart';
-import '../../infrastructure/adapters/chat_adapter.dart';
+import '../../domain/entities/contact.dart';
+import '../../application/use_cases/add_contact.dart';
+import '../../infrastructure/adapters/database_adapter.dart';
 
 class CreateContactPage extends StatefulWidget {
   @override
@@ -10,65 +9,60 @@ class CreateContactPage extends StatefulWidget {
 }
 
 class _CreateContactPageState extends State<CreateContactPage> {
-  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _lastNameController = TextEditingController();
+
+  void _createContact() {
+    final name = _nameController.text;
+    final lastName = _lastNameController.text;
+
+    if (name.isNotEmpty && lastName.isNotEmpty) {
+      final contact = Contact(name, lastName);
+      final addContactUseCase = AddContact(DatabaseAdapter());
+      addContactUseCase.execute(contact);
+      Navigator.pop(context);
+    } else {
+      // Manejar el caso cuando los campos están vacíos
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Por favor, complete todos los campos.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nuevo Contacto'),
+        title: Text('Crear Contacto'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Nombre',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese un nombre';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _lastNameController,
-                decoration: InputDecoration(
-                  labelText: 'Apellido',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese un apellido';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 32.0),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    final name = _nameController.text;
-                    final lastName = _lastNameController.text;
-                    final createContactCommand = CreateContactCommand(name, lastName);
-                    final createContactHandler = CreateContactHandler(
-                      context.read<ChatAdapter>(),
-                    );
-                    createContactHandler.handle(createContactCommand);
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text('Crear Contacto'),
-              ),
-            ],
-          ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Nombre'),
+            ),
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(labelText: 'Apellido'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _createContact,
+              child: Text('Crear Contacto'),
+            ),
+          ],
         ),
       ),
     );
