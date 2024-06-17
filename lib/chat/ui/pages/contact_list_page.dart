@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../application/use_cases/get_contact.dart';
-import '../../domain/entities/contact.dart';
+import '../../domain/entities/contact.entity.dart';
 import '../../infrastructure/adapters/database_adapter.dart';
+import '../contact/contact_page.dart';
 import 'create_contact_page.dart';
 
 class ContactListPage extends StatefulWidget {

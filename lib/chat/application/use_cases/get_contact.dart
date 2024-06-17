@@ -1,4 +1,4 @@
-import '../../domain/entities/contact.dart';
+import '../../domain/entities/contact.entity.dart';
 import '../ports/contact_port.dart';
 
 class GetContacts {

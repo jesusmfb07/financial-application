@@ -1,6 +1,6 @@
 import '../ports/group_port.dart';
 import '../../domain/entities/group.dart';
-import '../../domain/entities/contact.dart';
+import '../../domain/entities/contact.entity.dart';
 
 class CreateGroup {
   final GroupPort _groupPort;

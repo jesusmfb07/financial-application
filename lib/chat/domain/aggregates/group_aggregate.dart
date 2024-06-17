@@ -1,6 +1,7 @@
-// class GroupAggregate {
-//   final String id;
-//   final String name;
-//
-//   GroupAggregate({required this.id, required this.name});
-// }
+import '../entities/group.dart';
+
+class GroupAggregate {
+  final List<Group> groups;
+
+  GroupAggregate({required this.groups});
+}

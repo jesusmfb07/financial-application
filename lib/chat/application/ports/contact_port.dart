@@ -1,6 +1,6 @@
-import '../../domain/entities/contact.dart';
+import '../../domain/entities/contact.entity.dart';
 
 abstract class ContactPort {
   Future<List<Contact>> getContacts();
-  Future<void> addContact(Contact contact);
+  Future<void> createContact(Contact contact);
 }

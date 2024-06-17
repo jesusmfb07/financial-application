@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../../domain/entities/contact.dart';
+import '../../domain/entities/contact.entity.dart';
 import '../../application/ports/contact_port.dart';
 
 class DatabaseAdapter implements ContactPort {
@@ -31,15 +31,6 @@ class DatabaseAdapter implements ContactPort {
   }
 
   @override
-  Future<void> addContact(Contact contact) async {
-    final db = await database;
-    await db.insert('contacts', {
-      'name': contact.name,
-      'lastName': contact.lastName,
-    });
-  }
-
-  @override
   Future<List<Contact>> getContacts() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('contacts');
@@ -50,4 +41,14 @@ class DatabaseAdapter implements ContactPort {
       );
     });
   }
+
+  @override
+  Future<void> createContact(Contact contact) async {
+    final db = await database;
+    await db.insert('contacts', {
+      'name': contact.name,
+      'lastName': contact.lastName,
+    });
+  }
 }
+

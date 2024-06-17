@@ -1,4 +1,4 @@
-import '../../../../domain/entities/contact.dart';
+import '../../../../domain/entities/contact.entity.dart';
 
 class CreateGroupCommand {
   final String name;
