@@ -1,6 +1,3 @@
-
-
-// lib/ui/contact/contact_form.dart
 import 'package:flutter/material.dart';
 import 'contact_styles.dart';
 
@@ -8,11 +5,13 @@ class ContactForm extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController lastNameController;
   final VoidCallback onSubmit;
+  final String submitButtonText;
 
   ContactForm({
     required this.nameController,
     required this.lastNameController,
     required this.onSubmit,
+    this.submitButtonText = 'Crear Contacto', // Default text for create
   });
 
   @override
@@ -33,10 +32,11 @@ class ContactForm extends StatelessWidget {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: onSubmit,
-            child: Text('Crear Contacto', style: ContactStyles.buttonTextStyle),
+            child: Text(submitButtonText, style: ContactStyles.buttonTextStyle),
           ),
         ],
       ),
     );
   }
 }
+

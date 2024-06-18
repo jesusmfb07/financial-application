@@ -1,5 +1,5 @@
-import '../../domain/entities/group.dart';
-import '../ports/group_port.dart';
+import '../../domain/entities/group.entity.dart';
+import '../ports/group/group_port.dart';
 
 class GetGroups {
   final GroupPort _groupPort;

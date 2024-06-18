@@ -1,12 +1,21 @@
-import '../../../../domain/aggregates/contact_aggregate.dart';
-import '../../../../domain/entities/contact.entity.dart';
-import '../../../ports/contact_port.dart';
-import '../../create_contact_use_case.dart';
+//
+// class CreateContactCommand {
+//   final String name;
+//   final String lastName;
+//
+//   CreateContactCommand(this.name, this.lastName);
+// }
 
-class CreateContactQuery implements CreateContactUseCase {
+
+import '../../../../../domain/aggregates/contact_aggregate.dart';
+import '../../../../../domain/entities/contact.entity.dart';
+import '../../../../ports/contact/contact_port.dart';
+import '../../../contact/contact_use_case.dart';
+
+class CreateContactCommand implements CreateContactUseCase {
   final ContactPort contactPort;
 
-  CreateContactQuery(this.contactPort);
+  CreateContactCommand(this.contactPort);
 
   @override
   Future<void> execute(ContactAggregate aggregate,Contact contact) async {

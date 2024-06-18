@@ -1,5 +1,5 @@
-import '../../application/ports/group_port.dart';
-import '../../domain/entities/group.dart';
+import '../../application/ports/group/group_port.dart';
+import '../../domain/entities/group.entity.dart';
 
 class GroupEndpoint {
   final GroupPort _groupPort;

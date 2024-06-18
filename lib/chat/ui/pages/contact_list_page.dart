@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../application/use_cases/get_contact.dart';
+import '../../application/use_cases/handler/command/contact/delete_contact_command.dart';
+import '../../application/use_cases/handler/queries/contact/get_contacts_query.dart';
+import '../../domain/aggregates/contact_aggregate.dart';
 import '../../domain/entities/contact.entity.dart';
 import '../../infrastructure/adapters/database_adapter.dart';
-import '../contact/contact_page.dart';
-import 'create_contact_page.dart';
+import '../contact/create_contact_page.dart';
+import '../contact/update_contact_page.dart';
+
+
 
 class ContactListPage extends StatefulWidget {
   @override
@@ -16,8 +20,21 @@ class _ContactListPageState extends State<ContactListPage> {
   @override
   void initState() {
     super.initState();
-    final getContactsUseCase = GetContacts(DatabaseAdapter());
-    _contactsFuture = getContactsUseCase.execute();
+    _loadContacts();
+  }
+
+  void _loadContacts() {
+    final getContactsUseCase = GetContactsQuery(DatabaseAdapter());
+    setState(() {
+      _contactsFuture = getContactsUseCase.execute(ContactAggregate(contacts: [])); // Pasa un ContactAggregate vacío
+    });
+  }
+
+  void _deleteContact(Contact contact) async {
+    final deleteContactUseCase = DeleteContactCommand(DatabaseAdapter());
+    final aggregate = ContactAggregate(contacts: []); // Crea un ContactAggregate vacío
+    await deleteContactUseCase.execute(aggregate, contact);
+    _loadContacts();
   }
 
   @override
@@ -44,6 +61,26 @@ class _ContactListPageState extends State<ContactListPage> {
                 return ListTile(
                   title: Text(contact.name),
                   subtitle: Text(contact.lastName),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UpdateContactPage(contact: contact),
+                            ),
+                          ).then((_) => _loadContacts());
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () => _deleteContact(contact),
+                      ),
+                    ],
+                  ),
                 );
               },
             );
@@ -55,12 +92,7 @@ class _ContactListPageState extends State<ContactListPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => CreateContactPage()),
-          ).then((_) {
-            setState(() {
-              final getContactsUseCase = GetContacts(DatabaseAdapter());
-              _contactsFuture = getContactsUseCase.execute();
-            });
-          });
+          ).then((_) => _loadContacts());
         },
         child: Icon(Icons.add),
       ),

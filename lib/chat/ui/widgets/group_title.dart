@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../domain/entities/group.dart';
+import '../../domain/entities/group.entity.dart';
 
 class GroupTile extends StatelessWidget {
   final Group group;

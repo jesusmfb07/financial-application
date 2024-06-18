@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../application/use_cases/get_contact.dart';
+import '../../application/use_cases/handler/queries/contact/get_contacts_query.dart';
 import '../../application/use_cases/search_contacts.dart';
-import '../../application/use_cases/create_group.dart';
+import '../../application/use_cases/create_group_use_case.dart';
+import '../../domain/aggregates/contact_aggregate.dart';
 import '../../domain/entities/contact.entity.dart';
-import '../../infrastructure/adapters/contact_adapter.dart';
+import '../../infrastructure/adapters/database_adapter.dart';
 import '../../infrastructure/adapters/group_adapter.dart';
-import '../contact/contact_page.dart';
-import 'create_contact_page.dart'; // Asegúrate de tener esta importación
+import '../contact/create_contact_page.dart';
+
 
 class NewGroupPage extends StatefulWidget {
   @override
@@ -14,7 +15,7 @@ class NewGroupPage extends StatefulWidget {
 }
 
 class _NewGroupPageState extends State<NewGroupPage> {
-  final _getContacts = GetContacts(ContactAdapter());
+  final _getContacts = GetContactsQuery(DatabaseAdapter());
   final _searchContacts = SearchContacts();
   final _createGroup = CreateGroup(GroupAdapter());
 
@@ -29,7 +30,7 @@ class _NewGroupPageState extends State<NewGroupPage> {
   }
 
   Future<void> _loadContacts() async {
-    _contacts = await _getContacts.execute();
+    _contacts = await _getContacts.execute(ContactAggregate(contacts: []));
     setState(() {});
   }
 

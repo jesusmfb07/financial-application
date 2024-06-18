@@ -1,7 +1,6 @@
-// lib/ui/contact/contact_page.dart
 import 'package:flutter/material.dart';
+import '../../application/use_cases/handler/command/contact/create_contact_command.dart';
 import 'contact_form.dart';
-import '../../application/use_cases/handler/queries/create_contact_query.dart';
 import '../../domain/entities/contact.entity.dart';
 import '../../infrastructure/adapters/database_adapter.dart';
 import '../../domain/aggregates/contact_aggregate.dart';
@@ -21,9 +20,12 @@ class _CreateContactPageState extends State<CreateContactPage> {
     final lastName = _lastNameController.text;
 
     if (name.isNotEmpty && lastName.isNotEmpty) {
-      final contact = Contact(name, lastName);
+
+      final id = DateTime.now().millisecondsSinceEpoch;
+
+      final contact = Contact(id, name, lastName); // Asume que la base de datos generará el id
       final contactPort = DatabaseAdapter();
-      final createContactUseCase = CreateContactQuery(contactPort);
+      final createContactUseCase = CreateContactCommand(contactPort); // O CreateContactUseCase(contactPort)
 
       final aggregate = ContactAggregate(contacts: [contact]);
       await createContactUseCase.execute(aggregate, contact);
@@ -49,7 +51,7 @@ class _CreateContactPageState extends State<CreateContactPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Crear Contacto', style: ContactStyles.titleTextStyle),
+        title: Text('Crear contacto', style: ContactStyles.titleTextStyle),
       ),
       body: ContactForm(
         nameController: _nameController,

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../domain/entities/group.dart';
+import '../../domain/entities/group.entity.dart';
 import '../../application/use_cases/get_groups.dart';
 import '../../infrastructure/adapters/group_adapter.dart';
 import '../widgets/group_title.dart';
 import '../widgets/my_finances.dart';
-import 'create_contact_page.dart';
 import 'new_group_page.dart';
 import 'contact_list_page.dart'; // Importa la nueva página
 
