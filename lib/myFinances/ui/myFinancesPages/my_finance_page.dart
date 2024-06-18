@@ -25,23 +25,29 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Mis Finanzas'),
-            SizedBox(height: 5.0), // Añadir un poco de espacio entre el título y los botones
-            ToggleButtons(
+        title: Text('Mis Finanzas'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(48.0),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: ToggleButtons(
               borderRadius: BorderRadius.circular(8.0),
-              selectedBorderColor: Theme.of(context).colorScheme.primary,
+              selectedBorderColor: Theme
+                  .of(context)
+                  .colorScheme
+                  .primary,
               selectedColor: Colors.white,
-              fillColor: Theme.of(context).colorScheme.primary,
+              fillColor: Theme
+                  .of(context)
+                  .colorScheme
+                  .primary,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: Text('Ingreso'),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: Text('Egreso'),
                 ),
               ],
@@ -56,7 +62,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
                 });
               },
             ),
-          ],
+          ),
         ),
       ),
       body: StreamBuilder<List<FinanceEntry>>(
@@ -70,7 +76,9 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
                 return ListTile(
                   title: Text(entry.description),
                   subtitle: Text(
-                      '${entry.amount} (${entry.type == EntryType.income ? 'Ingreso' : 'Egreso'})'),
+                      '${entry.amount} (${entry.type == EntryType.income
+                          ? 'Ingreso'
+                          : 'Egreso'})'),
                 );
               },
             );
@@ -113,69 +121,81 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
       builder: (context) {
         String description = '';
         double amount = 0;
+        String category = '';
+        TextEditingController dateController = TextEditingController();
 
         return AlertDialog(
-          title: Text('Nueva Entrada'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                onChanged: (value) => description = value,
-                decoration: InputDecoration(
-                  labelText: 'Descripción',
-                ),
-              ),
-              TextField(
-                onChanged: (value) => amount = double.parse(value),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: 'Monto',
-                ),
-              ),
-              SizedBox(height: 16.0),
-              Row(
+          title: Text('Nuevo ingreso'),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Fecha',
-                        suffixIcon: Icon(Icons.calendar_today),
-                      ),
+                  TextField(
+                    controller: dateController,
+                    decoration: InputDecoration(
+                      labelText: 'Fecha',
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      if (pickedDate != null) {
+                        dateController.text = pickedDate.toString().split(' ')[0];
+                      }
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    onChanged: (value) => amount = double.parse(value),
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: 'Monto',
                     ),
                   ),
-                  SizedBox(width: 16.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: 'Categoría',
+                  SizedBox(height: 16.0),
+                  Stack(
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Categoría',
+                          contentPadding: EdgeInsets.only(right: 48), // Deja espacio para los iconos
+                        ),
                       ),
-                      items: ['Categoría 1', 'Categoría 2', 'Categoría 3']
-                          .map((category) => DropdownMenuItem(
-                        value: category,
-                        child: Text(category),
-                      ))
-                          .toList(),
-                      onChanged: (value) {
-                        // Implementar la lógica de selección de categoría
-                      },
+                      Positioned(
+                        right: 30,
+                        top: 15,
+                        child: Icon(Icons.search),
+                      ),
+                      Positioned(
+                        right: 0,
+                        top: 15,
+                        child: Icon(Icons.arrow_drop_down),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    onChanged: (value) => description = value,
+                    decoration: InputDecoration(
+                      labelText: 'Descripción',
                     ),
+                  ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Implementar la lógica de adjuntar documento
+                    },
+                    child: Text('Adjuntar Documento'),
                   ),
                 ],
               ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Implementar la lógica de adjuntar documento
-                      },
-                      child: Text('Adjuntar Documento'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
           actions: [
             TextButton(
@@ -201,4 +221,5 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
       },
     );
   }
+
 }
