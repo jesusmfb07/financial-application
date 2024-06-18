@@ -25,30 +25,39 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mis Finanzas'),
-        actions: [
-          ToggleButtons(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('Ingreso'),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text('Egreso'),
-              ),
-            ],
-            isSelected: [
-              _selectedEntryType == EntryType.income,
-              _selectedEntryType == EntryType.expense,
-            ],
-            onPressed: (index) {
-              setState(() {
-                _selectedEntryType = index == 0 ? EntryType.income : EntryType.expense;
-              });
-            },
-          ),
-        ],
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Mis Finanzas'),
+            SizedBox(height: 5.0), // Añadir un poco de espacio entre el título y los botones
+            ToggleButtons(
+              borderRadius: BorderRadius.circular(8.0),
+              selectedBorderColor: Theme.of(context).colorScheme.primary,
+              selectedColor: Colors.white,
+              fillColor: Theme.of(context).colorScheme.primary,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text('Ingreso'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text('Egreso'),
+                ),
+              ],
+              isSelected: [
+                _selectedEntryType == EntryType.income,
+                _selectedEntryType == EntryType.expense,
+              ],
+              onPressed: (index) {
+                setState(() {
+                  _selectedEntryType =
+                  index == 0 ? EntryType.income : EntryType.expense;
+                });
+              },
+            ),
+          ],
+        ),
       ),
       body: StreamBuilder<List<FinanceEntry>>(
         stream: _repository.getEntries(),
@@ -60,7 +69,8 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
                 final entry = snapshot.data![index];
                 return ListTile(
                   title: Text(entry.description),
-                  subtitle: Text('${entry.amount} (${entry.type == EntryType.income ? 'Ingreso' : 'Egreso'})'),
+                  subtitle: Text(
+                      '${entry.amount} (${entry.type == EntryType.income ? 'Ingreso' : 'Egreso'})'),
                 );
               },
             );
