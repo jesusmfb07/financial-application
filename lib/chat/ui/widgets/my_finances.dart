@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../myFinances/ui/myFinancesPages/my_finance_page.dart';
+
 class MyFinancesTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -8,7 +10,11 @@ class MyFinancesTile extends StatelessWidget {
       leading: Icon(Icons.account_circle_outlined),
       title: Text('Mis finanzas'),
       onTap: () {
-        // Implement logic for tapping on "My Finances"
+        // Navegar a la página MyFinancesPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyFinancesPage()),
+        );
       },
     );
   }

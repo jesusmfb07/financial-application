@@ -1,12 +1,3 @@
-//
-// class CreateContactCommand {
-//   final String name;
-//   final String lastName;
-//
-//   CreateContactCommand(this.name, this.lastName);
-// }
-
-
 import '../../../../../domain/aggregates/contact_aggregate.dart';
 import '../../../../../domain/entities/contact.entity.dart';
 import '../../../../ports/contact/contact_port.dart';
