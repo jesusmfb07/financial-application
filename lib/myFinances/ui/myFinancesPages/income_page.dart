@@ -30,7 +30,7 @@ class _IncomePageState extends State<IncomePage> {
         TextEditingController dateController = TextEditingController();
 
         return AlertDialog(
-          title: Center(child: Text('Nueva Entrada')),
+          title: Center(child: Text('Nuevo Ingreso')),
           content: Container(
             width: MediaQuery.of(context).size.width * 0.8,
             child: SingleChildScrollView(

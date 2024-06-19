@@ -1,15 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import '../../application/use_cases/finances_entries_usecase.dart';
 import '../../application/use_cases/handler/command/create_finance_entry_command.dart';
 import '../../domain/aggregates/finance_entry.aggregate.dart';
 import '../../domain/entities/finance_entry.entity.dart';
 import '../../infrastructure/adapters/finance_entry_adapter.dart';
-
 class EgressPage extends StatefulWidget {
   @override
   _EgressPageState createState() => _EgressPageState();
 }
-
 class _EgressPageState extends State<EgressPage> {
   final _repository = FinanceEntryAdapter();
   late CreateFinanceEntryUseCase _createEntryUseCase;
@@ -143,7 +143,7 @@ class _EgressPageState extends State<EgressPage> {
                       );
                       final aggregate = FinanceEntryAggregate(entries: []);
                       _createEntryUseCase.execute(aggregate, entry);
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Cerrar el diálogo después de agregar
                     },
                     child: Text('Agregar'),
                   ),
@@ -169,7 +169,8 @@ class _EgressPageState extends State<EgressPage> {
                 final entry = snapshot.data![index];
                 return ListTile(
                   title: Text(entry.description),
-                  subtitle: Text('${entry.amount} (${entry.type == EntryType.expense ? 'Egreso' : 'Ingreso'})'),
+                  subtitle: Text(
+                      '${entry.amount} (${entry.type == EntryType.expense ? 'Egreso' : 'Ingreso'})'),
                 );
               },
             );
