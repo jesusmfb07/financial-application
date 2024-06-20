@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../ settings/ui/mySettings/settings_page.dart';
 import '../../chat/ui/pages/expense_manager_page.dart';
+import '../../register/ui/myRegister/register_page.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -27,7 +28,20 @@ class CustomBottomNavigationBar extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => ExpenseManagerPage()),
           );
+        }else if (index == 1) {
+          // Navegar a la página de registros cuando se presione el botón de registros
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RegisterPage()),
+          );
         }
+        // else if (index == 2) {
+        //   // Navegar a la página de registros cuando se presione el botón de registros
+        //   Navigator.push(
+        //     context,
+        //     MaterialPageRoute(builder: (context) => CalendarPage()),
+        //   );
+        // }
       },
       items: const [
         BottomNavigationBarItem(
@@ -36,7 +50,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.insert_chart),
-          label: 'Reportes',
+          label: 'Registro',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today),
