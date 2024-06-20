@@ -14,7 +14,7 @@ class UpdateProviderCommand implements UpdateProviderUseCase {
     if (index != -1) {
       aggregate.providers[index] = provider;
     }
-    await providerPort.updateProvider(aggregate, provider);
+    await providerPort.updateProvider(provider);
   }
 }
 

@@ -69,10 +69,29 @@ class _ProviderPageState extends State<ProviderPage> {
     _loadProviders();
   }
 
-  void _showAddProviderDialog({String? id, String? initialName, String? initialPhoneNumber, String? initialRuc}) {
-    _nameController.text = initialName ?? '';
-    _phoneNumberController.text = initialPhoneNumber ?? '';
-    _rucController.text = initialRuc ?? '';
+  void _showAddProviderDialog({
+    String? id,
+    String? initialName,
+    String? initialPhoneNumber,
+    String? initialRuc,
+  }) {
+    if (initialName != null) {
+      _nameController.text = initialName;
+    } else {
+      _nameController.clear();
+    }
+
+    if (initialPhoneNumber != null) {
+      _phoneNumberController.text = initialPhoneNumber;
+    } else {
+      _phoneNumberController.clear();
+    }
+
+    if (initialRuc != null) {
+      _rucController.text = initialRuc;
+    } else {
+      _rucController.clear();
+    }
 
     showDialog(
       context: context,

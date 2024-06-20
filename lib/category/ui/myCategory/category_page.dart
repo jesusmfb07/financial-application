@@ -43,7 +43,9 @@ class _CategoryPageState extends State<CategoryPage> {
   Future<void> _addOrUpdateCategory({String? id}) async {
     if (_categoryController.text.isEmpty) return;
 
-    final category = Category(id: id ?? DateTime.now().toString(), name: _categoryController.text);
+    final category = Category(
+        id: id ?? DateTime.now().toString(),
+        name: _categoryController.text);
     if (id == null) {
       await widget.createCategoryUseCase.execute(widget.aggregate, category);
     } else {

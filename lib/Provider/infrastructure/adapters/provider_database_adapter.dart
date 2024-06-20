@@ -1,6 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../../domain/aggregates/provider_aggregate.dart';
 import '../../domain/entities/provider_entity.dart';
 import '../../application/ports/provider_port.dart';
 
@@ -22,18 +21,18 @@ class ProviderSQLiteAdapter implements ProviderPort {
 
   Future<Database> _initDatabase() async {
     final databasePath = await getDatabasesPath();
-    final path = join(databasePath, 'provider_database.db');
+    final path = join(databasePath, 'providers.db');
 
-    return openDatabase(
+    return await openDatabase(
       path,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE providers('
-              id TEXT PRIMARY KEY,'
-               name TEXT,'
-               phoneNumber TEXT,'
-               ruc TEXT'
+          CREATE TABLE providers(
+               id TEXT PRIMARY KEY,
+               name TEXT,
+               phoneNumber TEXT,
+               ruc TEXT
               ),
         ''');
       },
@@ -41,13 +40,13 @@ class ProviderSQLiteAdapter implements ProviderPort {
   }
 
   @override
-  Future<void> createProvider(ProviderAggregate aggregate,Provider provider) async {
+  Future<void> createProvider(Provider provider) async {
     final db = await database;
     await db.insert('providers', provider.toMap());
   }
 
   @override
-  Future<void> updateProvider(ProviderAggregate aggregate,Provider provider) async {
+  Future<void> updateProvider(Provider provider) async {
     final db = await database;
     await db.update(
       'providers',

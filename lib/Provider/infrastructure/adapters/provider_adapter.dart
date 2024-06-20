@@ -10,12 +10,12 @@ class ProviderAdapter implements ProviderPort {
   }
 
   @override
-  Future<void> createProvider(aggregate,provider) async {
+  Future<void> createProvider(Provider provider) async {
     _providers.add(provider);
   }
 
   @override
-  Future<void> updateProvider(aggregate,provider) async {
+  Future<void> updateProvider(Provider provider) async {
     final index = _providers.indexWhere((c) => c.id == provider.id);
     if (index != -1) {
       _providers[index] = provider;
