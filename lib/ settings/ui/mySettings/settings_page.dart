@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Importa la biblioteca intl
 import '../../../chat/ui/pages/expense_manager_page.dart';
 import '../../application/ports/settings_port.dart';
 import '../../application/use_cases/handler/command/Currency_command.dart';
 import '../../application/use_cases/handler/command/Providers_command.dart';
-
 import '../../application/use_cases/handler/command/categories_command.dart';
 import '../../application/use_cases/handler/command/reminders_command.dart';
 import '../../infrastructure/adapters/settings_adapter.dart';
@@ -34,6 +34,8 @@ class SettingsPage extends StatelessWidget {
         );
       }
     }
+
+    String formattedDate = DateFormat('dd/MM/yy').format(DateTime.now()); // Formatea la fecha actual
 
     return Scaffold(
       body: SafeArea(
@@ -67,7 +69,7 @@ class SettingsPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '9/11/22 23:09',
+                        formattedDate, // Muestra la fecha actual
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.0,
@@ -76,10 +78,6 @@ class SettingsPage extends StatelessWidget {
                     ],
                   ),
                   Spacer(),
-                  Icon(
-                    Icons.favorite_border,
-                    color: Colors.white,
-                  ),
                 ],
               ),
             ),

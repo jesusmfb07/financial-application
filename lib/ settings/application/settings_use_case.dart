@@ -1,6 +1,3 @@
-import 'package:exercises_flutter2/%20settings/application/ports/settings_port.dart';
-import 'package:flutter/material.dart';
-
 
 abstract class NavigateToRemindersPageUseCase {
   Future<void> execute();
