@@ -16,4 +16,3 @@ abstract class UpdateProviderUseCase {
 abstract class DeleteProviderUseCase {
   Future<void> execute(ProviderAggregate aggregate, Provider provider);
 }
-

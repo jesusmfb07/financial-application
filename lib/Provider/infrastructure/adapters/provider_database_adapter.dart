@@ -1,7 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../../domain/entities/provider_entity.dart';
+
 import '../../application/ports/provider_port.dart';
+import '../../domain/entities/provider_entity.dart';
 
 class ProviderSQLiteAdapter implements ProviderPort {
   static final ProviderSQLiteAdapter _instance = ProviderSQLiteAdapter._internal();
@@ -28,12 +29,12 @@ class ProviderSQLiteAdapter implements ProviderPort {
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE providers(
-               id TEXT PRIMARY KEY,
-               name TEXT,
-               phoneNumber TEXT,
-               ruc TEXT
-              ),
+          CREATE TABLE providers (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            phoneNumber TEXT,
+            ruc TEXT
+          )
         ''');
       },
     );
@@ -73,4 +74,3 @@ class ProviderSQLiteAdapter implements ProviderPort {
     return result.map((map) => Provider.fromMap(map)).toList();
   }
 }
-

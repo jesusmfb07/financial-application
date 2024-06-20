@@ -20,5 +20,3 @@ class ProviderAggregate {
     providers.removeWhere((p) => p.id == provider.id);
   }
 }
-
-
