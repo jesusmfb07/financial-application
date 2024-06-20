@@ -1,10 +1,18 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import '../../domain/aggregates/provider_aggregate.dart';
 import '../../domain/entities/provider_entity.dart';
 import '../../application/ports/provider_port.dart';
 
 class ProviderSQLiteAdapter implements ProviderPort {
+  static final ProviderSQLiteAdapter _instance = ProviderSQLiteAdapter._internal();
   Database? _database;
+
+  factory ProviderSQLiteAdapter() {
+    return _instance;
+  }
+
+  ProviderSQLiteAdapter._internal();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -13,38 +21,37 @@ class ProviderSQLiteAdapter implements ProviderPort {
   }
 
   Future<Database> _initDatabase() async {
-    final path = join(await getDatabasesPath(), 'provider_database.db');
+    final databasePath = await getDatabasesPath();
+    final path = join(databasePath, 'provider_database.db');
+
     return openDatabase(
       path,
-      onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE providers(id TEXT PRIMARY KEY, name TEXT, contactInfo TEXT)',
-        );
-      },
       version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE providers('
+              id TEXT PRIMARY KEY,'
+               name TEXT,'
+               phoneNumber TEXT,'
+               ruc TEXT'
+              ),
+        ''');
+      },
     );
   }
 
   @override
-  Future<void> createProvider(Provider provider) async {
+  Future<void> createProvider(ProviderAggregate aggregate,Provider provider) async {
     final db = await database;
-    await db.insert('providers', {
-      'id': provider.id,
-      'name': provider.name,
-      'contactInfo': provider.contactInfo,
-    });
+    await db.insert('providers', provider.toMap());
   }
 
   @override
-  Future<void> updateProvider(Provider provider) async {
+  Future<void> updateProvider(ProviderAggregate aggregate,Provider provider) async {
     final db = await database;
     await db.update(
       'providers',
-      {
-        'id': provider.id,
-        'name': provider.name,
-        'contactInfo': provider.contactInfo,
-      },
+      provider.toMap(),
       where: 'id = ?',
       whereArgs: [provider.id],
     );
@@ -63,14 +70,8 @@ class ProviderSQLiteAdapter implements ProviderPort {
   @override
   Future<List<Provider>> getProviders() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('providers');
-    return List.generate(maps.length, (i) {
-      return Provider(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        contactInfo: maps[i]['contactInfo'],
-        contactNumber: maps[i]['contactNumber'],
-      );
-    });
+    final result = await db.query('providers');
+    return result.map((map) => Provider.fromMap(map)).toList();
   }
 }
+

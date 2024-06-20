@@ -10,7 +10,7 @@ class CreateProviderCommand implements CreateProviderUseCase {
 
   @override
   Future<void> execute(ProviderAggregate aggregate, Provider provider) async {
-    await providerPort.createProvider(provider);
     aggregate.createProvider(provider);
+    await providerPort.createProvider(aggregate,provider);
   }
 }

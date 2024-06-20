@@ -1,9 +1,7 @@
-// ui/pages/provider_page.dart
 import 'package:flutter/material.dart';
 import '../../application/use_cases/provider_use_case.dart';
 import '../../domain/aggregates/provider_aggregate.dart';
 import '../../domain/entities/provider_entity.dart';
-
 
 class ProviderPage extends StatefulWidget {
   final CreateProviderUseCase createProviderUseCase;
@@ -25,9 +23,9 @@ class ProviderPage extends StatefulWidget {
 }
 
 class _ProviderPageState extends State<ProviderPage> {
-  final TextEditingController _providerNameController = TextEditingController();
-  final TextEditingController _providerContactInfoController = TextEditingController();
-  final TextEditingController _providerContactNumberController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _rucController = TextEditingController();
 
   @override
   void initState() {
@@ -44,22 +42,24 @@ class _ProviderPageState extends State<ProviderPage> {
   }
 
   Future<void> _addOrUpdateProvider({String? id}) async {
-    if (_providerNameController.text.isEmpty || _providerContactInfoController.text.isEmpty||_providerContactNumberController.text.isEmpty) return;
+    if (_nameController.text.isEmpty) return;
 
     final provider = Provider(
       id: id ?? DateTime.now().toString(),
-      name: _providerNameController.text,
-      contactInfo: _providerContactInfoController.text,
-      contactNumber: _providerContactNumberController.text,
+      name: _nameController.text,
+      phoneNumber: _phoneNumberController.text,
+      ruc: _rucController.text,
     );
+
     if (id == null) {
       await widget.createProviderUseCase.execute(widget.aggregate, provider);
     } else {
       await widget.updateProviderUseCase.execute(widget.aggregate, provider);
     }
-    _providerNameController.clear();
-    _providerContactInfoController.clear();
-    _providerContactNumberController.clear();
+
+    _nameController.clear();
+    _phoneNumberController.clear();
+    _rucController.clear();
     _loadProviders();
   }
 
@@ -69,14 +69,10 @@ class _ProviderPageState extends State<ProviderPage> {
     _loadProviders();
   }
 
-  void _showAddProviderDialog({String? id, String? initialName, String? initialContactInfo}) {
-    if (initialName != null && initialContactInfo != null) {
-      _providerNameController.text = initialName;
-      _providerContactInfoController.text = initialContactInfo;
-    } else {
-      _providerNameController.clear();
-      _providerContactInfoController.clear();
-    }
+  void _showAddProviderDialog({String? id, String? initialName, String? initialPhoneNumber, String? initialRuc}) {
+    _nameController.text = initialName ?? '';
+    _phoneNumberController.text = initialPhoneNumber ?? '';
+    _rucController.text = initialRuc ?? '';
 
     showDialog(
       context: context,
@@ -87,16 +83,16 @@ class _ProviderPageState extends State<ProviderPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: _providerNameController,
+                controller: _nameController,
                 decoration: InputDecoration(labelText: 'Nombre del proveedor'),
               ),
               TextField(
-                controller: _providerContactInfoController,
-                decoration: InputDecoration(labelText: 'RUC'),
+                controller: _phoneNumberController,
+                decoration: InputDecoration(labelText: 'Teléfono'),
               ),
               TextField(
-                controller: _providerContactNumberController,
-                decoration: InputDecoration(labelText: 'Telefono'),
+                controller: _rucController,
+                decoration: InputDecoration(labelText: 'RUC'),
               ),
             ],
           ),
@@ -124,34 +120,49 @@ class _ProviderPageState extends State<ProviderPage> {
       appBar: AppBar(
         title: Text('Proveedores'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.aggregate.providers.length,
-              itemBuilder: (context, index) {
-                final provider = widget.aggregate.providers[index];
-                return ListTile(
-                  title: Text(provider.name),
-                  subtitle: Text(provider.contactInfo),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () => _deleteProviderById(provider.id),
-                  ),
-                  onTap: () => _showAddProviderDialog(
+      body: ListView.builder(
+        itemCount: widget.aggregate.providers.length,
+        itemBuilder: (context, index) {
+          final provider = widget.aggregate.providers[index];
+          return ListTile(
+            title: Text(provider.name),
+            subtitle: Text(provider.phoneNumber),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () => _showAddProviderDialog(
                     id: provider.id,
                     initialName: provider.name,
-                    initialContactInfo: provider.contactInfo,
+                    initialPhoneNumber: provider.phoneNumber,
+                    initialRuc: provider.ruc,
                   ),
-                );
-              },
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => _deleteProviderById(provider.id),
+                ),
+              ],
             ),
-          ),
-        ],
+            onTap: () {
+              _nameController.text = provider.name;
+              _phoneNumberController.text = provider.phoneNumber;
+              _rucController.text = provider.ruc;
+              _showAddProviderDialog(
+                id: provider.id,
+                initialName: provider.name,
+                initialPhoneNumber: provider.phoneNumber,
+                initialRuc: provider.ruc,
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
         onPressed: () => _showAddProviderDialog(),
+        tooltip: 'Agregar proveedor',
+        child: Icon(Icons.add),
       ),
     );
   }

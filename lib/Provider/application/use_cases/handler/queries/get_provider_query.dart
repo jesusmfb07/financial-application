@@ -10,7 +10,8 @@ class GetProvidersQuery implements GetProvidersUseCase {
 
   @override
   Future<List<Provider>> execute(ProviderAggregate aggregate) async {
-    final providers = await providerPort.getProviders();
-    return providers;
+    // final providers = await providerPort.getProviders();
+    // return providers;
+    return await providerPort.getProviders();
   }
 }

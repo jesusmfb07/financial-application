@@ -10,7 +10,7 @@ class DeleteProviderCommand implements DeleteProviderUseCase {
 
   @override
   Future<void> execute(ProviderAggregate aggregate, Provider provider) async {
-    await providerPort.deleteProvider(provider.id);
     aggregate.deleteProvider(provider);
+    await providerPort.deleteProvider(provider.id);
   }
 }

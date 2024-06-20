@@ -10,7 +10,11 @@ class UpdateProviderCommand implements UpdateProviderUseCase {
 
   @override
   Future<void> execute(ProviderAggregate aggregate, Provider provider) async {
-    await providerPort.updateProvider(provider);
-    aggregate.updateProvider(provider);
+    final index = aggregate.providers.indexWhere((p) => p.id == provider.id);
+    if (index != -1) {
+      aggregate.providers[index] = provider;
+    }
+    await providerPort.updateProvider(aggregate, provider);
   }
 }
+
