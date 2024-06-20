@@ -3,7 +3,7 @@ import '../entities/category_entity.dart';
 class CategoryAggregate {
   final List<Category> categories;
 
-  CategoryAggregate({required List<Category> categories}) : this.categories = categories;
+  CategoryAggregate({required this.categories});
 
   void createCategory(Category category) {
     categories.add(category);

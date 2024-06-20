@@ -1,5 +1,13 @@
+// ui/pages/settings_page.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Importa la biblioteca intl
+import 'package:intl/intl.dart';
+import '../../../category/application/use_cases/handler/command/create_category_command.dart';
+import '../../../category/application/use_cases/handler/command/delete_category_command.dart';
+import '../../../category/application/use_cases/handler/command/update_category_command.dart';
+import '../../../category/application/use_cases/handler/queries/get_categories_command.dart';
+import '../../../category/domain/aggregates/category_aggregate.dart';
+import '../../../category/infrastructure/adapters/categorySQLiteAdapter.dart';
+import '../../../category/ui/myCategory/category_page.dart';
 import '../../../chat/ui/pages/expense_manager_page.dart';
 import '../../application/ports/settings_port.dart';
 import '../../application/use_cases/handler/command/Currency_command.dart';
@@ -7,7 +15,8 @@ import '../../application/use_cases/handler/command/Providers_command.dart';
 import '../../application/use_cases/handler/command/categories_command.dart';
 import '../../application/use_cases/handler/command/reminders_command.dart';
 import '../../infrastructure/adapters/settings_adapter.dart';
-import '../../../shared/ui/navigation_bar_page.dart'; // Importa la barra de navegación personalizada
+import '../../../shared/ui/navigation_bar_page.dart';
+
 
 class SettingsPage extends StatelessWidget {
   final SettingsPort settingsPort = SettingsAdapter();
@@ -35,7 +44,7 @@ class SettingsPage extends StatelessWidget {
       }
     }
 
-    String formattedDate = DateFormat('dd/MM/yy').format(DateTime.now()); // Formatea la fecha actual
+    String formattedDate = DateFormat('dd/MM/yy').format(DateTime.now());
 
     return Scaffold(
       body: SafeArea(
@@ -69,7 +78,7 @@ class SettingsPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        formattedDate, // Muestra la fecha actual
+                        formattedDate,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14.0,
@@ -97,7 +106,18 @@ class SettingsPage extends StatelessWidget {
                     title: Text('Categorías'),
                     trailing: Icon(Icons.chevron_right),
                     onTap: () async {
-                      await navigateToCategoriesCommand.execute();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryPage(
+                            createCategoryUseCase: CreateCategoryCommand(CategorySQLiteAdapter()),
+                            updateCategoryUseCase: UpdateCategoryCommand(CategorySQLiteAdapter()),
+                            deleteCategoryUseCase: DeleteCategoryCommand(CategorySQLiteAdapter()),
+                            getCategoriesUseCase: GetCategoriesQuery(CategorySQLiteAdapter()),
+                            aggregate: CategoryAggregate(categories: []),
+                          ),
+                        ),
+                      );
                     },
                   ),
                   ListTile(

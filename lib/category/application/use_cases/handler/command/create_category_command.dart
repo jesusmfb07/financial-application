@@ -9,7 +9,8 @@ class CreateCategoryCommand implements CreateCategoryUseCase {
   CreateCategoryCommand(this.categoryPort);
 
   @override
-  Future<void> execute(CategoryAggregate aggregate,Category category) async {
+  Future<void> execute(CategoryAggregate aggregate, Category category) async {
+    aggregate.createCategory(category);
     await categoryPort.createCategory(category);
   }
 }

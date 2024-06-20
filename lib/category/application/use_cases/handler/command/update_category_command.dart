@@ -9,7 +9,8 @@ class UpdateCategoryCommand implements UpdateCategoryUseCase {
   UpdateCategoryCommand(this.categoryPort);
 
   @override
-  Future<void> execute(CategoryAggregate aggregate,Category category) async {
+  Future<void> execute(CategoryAggregate aggregate, Category category) async {
+    aggregate.updateCategory(category);
     await categoryPort.updateCategory(category);
   }
 }

@@ -3,7 +3,7 @@ import '../../../../domain/entities/category_entity.dart';
 import '../../../ports/category_port.dart';
 import '../../category_use_case.dart';
 
-class GetCategoriesQuery implements getCategoriesUseCase {
+class GetCategoriesQuery implements GetCategoriesUseCase {
   final CategoryPort categoryPort;
 
   GetCategoriesQuery(this.categoryPort);

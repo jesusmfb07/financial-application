@@ -9,7 +9,8 @@ class DeleteCategoryCommand implements DeleteCategoryUseCase {
   DeleteCategoryCommand(this.categoryPort);
 
   @override
-  Future<void> execute(CategoryAggregate aggregate, Category contact) async {
-    await categoryPort.deleteCategory(contact.id);
+  Future<void> execute(CategoryAggregate aggregate, Category category) async {
+    aggregate.deleteCategory(category);
+    await categoryPort.deleteCategory(category.id);
   }
 }
