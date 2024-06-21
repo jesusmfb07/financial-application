@@ -66,7 +66,8 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
     deleteEgressEntryUseCase = DeleteEgressEntryCommand(egressEntryPort);
     getEgressEntriesUseCase = GetEgressEntriesQuery(egressEntryPort);
     egressEntryAggregate = EgressEntryAggregate(entries: []);
-    egressCategories = <Category>[]; // Asegúrate de llenar esto con tus categorías de egresos
+    egressCategories = <Category>[];
+    egressProviders = <Provider>[];
   }
 
   void _onItemTapped(int index) {
