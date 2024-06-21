@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../myFinances/ui/myFinancesPages/my_finance_page.dart';
+import '../../../finances/myFinances/ui/myFinancesPages/my_finance_page.dart';
+
 
 class MyFinancesTile extends StatelessWidget {
   @override
