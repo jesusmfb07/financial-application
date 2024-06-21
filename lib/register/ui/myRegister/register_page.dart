@@ -1,12 +1,21 @@
-// ui/pages/register_page.dart
 import 'package:flutter/material.dart';
+import '../../../shared/ui/navigation_bar_page.dart';
 import '../../application/use_cases/handler/command/create_register_command.dart';
 import '../../application/use_cases/handler/queries/get_register_query.dart';
 import '../../domain/entities/register_entity.dart';
+import '../../domain/aggregates/register_aggregate.dart';
+import '../../infrastructure/adapters/register_adapter.dart';
 
 class RegisterPage extends StatelessWidget {
-  final GetRegistersQuery getRegisters = GetRegistersQuery(aggregate);
-  final CreateRegisterCommand addRegister = CreateRegisterCommand();
+  final RegisterSQLiteAdapter registerAdapter = RegisterSQLiteAdapter();
+  late final GetRegistersQuery getRegisters;
+  late final CreateRegisterCommand addRegister;
+  final RegisterAggregate registerAggregate = RegisterAggregate(registers: []);
+
+  RegisterPage() {
+    getRegisters = GetRegistersQuery(registerAdapter);
+    addRegister = CreateRegisterCommand(registerAdapter);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +29,7 @@ class RegisterPage extends StatelessWidget {
         ],
       ),
       body: FutureBuilder<List<Register>>(
-        future: getRegisters.call(),
+        future: getRegisters.execute(registerAggregate),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -51,9 +60,15 @@ class RegisterPage extends StatelessWidget {
             amount: 100.0,
             date: DateTime.now(),
           );
-          await addRegister.call(newRegister);
+          await addRegister.execute(registerAggregate, newRegister);
         },
         child: Icon(Icons.add),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: 1, // Assuming this is the index for the RegisterPage
+        onTap: (index) {
+          // Define your onTap logic here if necessary
+        },
       ),
     );
   }
