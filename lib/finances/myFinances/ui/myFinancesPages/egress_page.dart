@@ -5,7 +5,7 @@
 // import '../../application/use_cases/handler/command/create_finance_entry_command.dart';
 // import '../../domain/aggregates/finance_entry.aggregate.dart';
 // import '../../domain/entities/finance_entry.entity.dart';
-// import '../../infrastructure/adapters/finance_bd_adapter.dart';
+// import '../../infrastructure/adapters/income_adapter.dart';
 // class EgressPage extends StatefulWidget {
 //   @override
 //   _EgressPageState createState() => _EgressPageState();
@@ -186,3 +186,100 @@
 //     );
 //   }
 // }
+import 'package:flutter/material.dart';
+
+import '../../../../Provider/domain/entities/provider_entity.dart';
+import '../../../../category/domain/entities/category_entity.dart';
+import '../../domain/entities/egress_entry_entity.dart';
+
+class EgressPage extends StatefulWidget {
+  final CreateEgressEntryUseCase createEntryUseCase;
+  final UpdateEgressEntryUseCase updateEntryUseCase;
+  final GetEgressEntriesUseCase getEntriesUseCase;
+  final EgressEntryAggregate aggregate;
+  final List<Category> categories;
+  final List<Provider> providers;
+
+  EgressPage({
+    required this.createEntryUseCase,
+    required this.updateEntryUseCase,
+    required this.getEntriesUseCase,
+    required this.aggregate,
+    required this.categories,
+    required this.providers,
+  });
+
+  @override
+  _EgressPageState createState() => _EgressPageState();
+}
+
+class _EgressPageState extends State<EgressPage> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEntries();
+  }
+
+  Future<void> _loadEntries() async {
+    final entries = await widget.getEntriesUseCase.execute(widget.aggregate);
+    setState(() {
+      widget.aggregate.entries.clear();
+      widget.aggregate.entries.addAll(entries);
+    });
+  }
+
+  void _addEntry(String text) async {
+    final entry = EgressEntry(
+      description: text,
+      date: DateTime.now(),
+      // Otros campos necesarios
+    );
+    await widget.createEntryUseCase.execute(widget.aggregate, entry);
+    _loadEntries();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: widget.aggregate.entries.length,
+            itemBuilder: (context, index) {
+              final entry = widget.aggregate.entries[index];
+              return ListTile(
+                title: Text(entry.description),
+                // Otros detalles del entry
+                onTap: () {
+                  // Editar entry
+                },
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(hintText: 'Ingresar texto'),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () {
+                  _addEntry(_controller.text);
+                  _controller.clear();
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

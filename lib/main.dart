@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'chat/infrastructure/adapters/contact_adapter.dart';
 import 'chat/ui/pages/expense_manager_page.dart';
-import 'finances/myFinances/infrastructure/adapters/finance_bd_adapter.dart';
+import 'finances/myFinances/infrastructure/adapters/income_adapter.dart';
 import 'finances/myFinances/ui/myFinancesPages/my_finance_page.dart';
 
 
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         // Provider(create: (_) => ContactAdapter()),
-        Provider(create: (_) => FinanceEntryAdapter()), // Agregar el proveedor FinanceEntryAdapter
+        Provider(create: (_) => FinanceEntrySQLiteAdapter()), // Agregar el proveedor FinanceEntryAdapter
       ],
       child: MaterialApp(
         title: 'Gestor de Gastos',

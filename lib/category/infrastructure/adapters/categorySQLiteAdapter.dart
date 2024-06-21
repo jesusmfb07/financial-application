@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../domain/entities/category_entity.dart';
 import '../../application/ports/category_port.dart';
+import 'mappers.dart';
 
 class CategorySQLiteAdapter implements CategoryPort {
   static final CategorySQLiteAdapter _instance = CategorySQLiteAdapter._internal();
@@ -41,7 +42,7 @@ class CategorySQLiteAdapter implements CategoryPort {
   @override
   Future<void> createCategory(Category category) async {
     final db = await database;
-    await db.insert('categories', category.toMap());
+    await db.insert('categories', CategoryMapper.toMap(category));
   }
 
   @override
@@ -49,7 +50,7 @@ class CategorySQLiteAdapter implements CategoryPort {
     final db = await database;
     await db.update(
       'categories',
-      category.toMap(),
+      CategoryMapper.toMap(category),
       where: 'id = ?',
       whereArgs: [category.id],
     );
@@ -69,6 +70,6 @@ class CategorySQLiteAdapter implements CategoryPort {
   Future<List<Category>> getCategories() async {
     final db = await database;
     final result = await db.query('categories');
-    return result.map((map) => Category.fromMap(map)).toList();
+    return result.map((map) => CategoryMapper.fromMap(map)).toList();
   }
 }
