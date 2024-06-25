@@ -1,10 +1,11 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../../application/ports/income_port.dart';
 import '../../domain/entities/income_entry_entity.dart';
 import '../mappers/income_mappers.dart';
 
-class IncomeEntrySQLiteAdapter {
+class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
   static final IncomeEntrySQLiteAdapter _instance = IncomeEntrySQLiteAdapter._internal();
   Database? _database;
 

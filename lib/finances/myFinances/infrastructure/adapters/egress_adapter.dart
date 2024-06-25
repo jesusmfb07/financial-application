@@ -1,10 +1,11 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../../application/ports/egress_port.dart';
 import '../../domain/entities/egress_entry_entity.dart';
 import '../mappers/egress_mappers.dart';
 
-class EgressEntrySQLiteAdapter {
+class EgressEntrySQLiteAdapter implements EgressEntryPort{
   static final EgressEntrySQLiteAdapter _instance = EgressEntrySQLiteAdapter._internal();
   Database? _database;
 
