@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Asegúrate de importar intl para el manejo de fechas
+import 'package:intl/intl.dart';
 import '../../application/use_cases/income_use_case.dart';
 import '../../domain/aggregates/income_aggregate.dart';
 import '../../domain/entities/income_entry_entity.dart';
@@ -63,6 +63,26 @@ class _IncomePageState extends State<IncomePage> {
     }
   }
 
+  void _updateEntry(IncomeEntry entry) async {
+    final description = _descriptionController.text;
+    final amount = double.tryParse(_amountController.text) ?? 0.0;
+    final category = _categoryController.text;
+    final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
+
+    if (description.isNotEmpty && amount > 0 && category.isNotEmpty) {
+      final updatedEntry = IncomeEntry(
+        id: entry.id, // Assuming you have an id to identify the entry
+        description: description,
+        amount: amount,
+        date: date,
+        category: category,
+      );
+      await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
+      _loadEntries();
+      _clearFields();
+    }
+  }
+
   void _clearFields() {
     _descriptionController.clear();
     _amountController.clear();
@@ -70,12 +90,21 @@ class _IncomePageState extends State<IncomePage> {
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
   }
 
-  void _showAddEntryDialog() {
+  void _showEntryDialog({IncomeEntry? entry}) {
+    if (entry != null) {
+      _descriptionController.text = entry.description;
+      _amountController.text = entry.amount.toString();
+      _categoryController.text = entry.category;
+      _dateController.text = DateFormat('yyyy-MM-dd').format(entry.date);
+    } else {
+      _clearFields();
+    }
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Center(child: Text('Nuevo Ingreso')),
+          title: Center(child: Text(entry == null ? 'Nuevo Ingreso' : 'Editar Ingreso')),
           content: Container(
             width: MediaQuery.of(context).size.width * 0.8,
             child: SingleChildScrollView(
@@ -136,10 +165,14 @@ class _IncomePageState extends State<IncomePage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      _addEntry();
+                      if (entry == null) {
+                        _addEntry();
+                      } else {
+                        _updateEntry(entry);
+                      }
                       Navigator.pop(context);
                     },
-                    child: Text('Agregar'),
+                    child: Text(entry == null ? 'Agregar' : 'Actualizar'),
                   ),
                 ],
               ),
@@ -187,11 +220,11 @@ class _IncomePageState extends State<IncomePage> {
                     trailing: IconButton(
                       icon: Icon(Icons.edit),
                       onPressed: () {
-                        // Implementar lógica de edición si es necesario
+                        _showEntryDialog(entry: entry);
                       },
                     ),
                     onTap: () {
-                      // Implementar lógica de selección si es necesario
+                      _showEntryDialog(entry: entry);
                     },
                   ),
                 );
@@ -201,7 +234,7 @@ class _IncomePageState extends State<IncomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddEntryDialog,
+        onPressed: () => _showEntryDialog(),
         child: Icon(Icons.add),
       ),
     );
