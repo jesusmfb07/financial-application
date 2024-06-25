@@ -1,3 +1,4 @@
+import 'dart:io';  // Importa dart:io para usar la clase File
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,7 +25,7 @@ class IncomePage extends StatefulWidget {
     required this.getCategoriesUseCase,
     required this.aggregate,
     required this.categoryAggregate,
-    required this.attachmentPath,
+    this.attachmentPath,
   });
 
   @override
@@ -36,6 +37,7 @@ class _IncomePageState extends State<IncomePage> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   String? _selectedCategory;
+  String? _attachmentPath; // Define _attachmentPath en el estado del widget
 
   @override
   void initState() {
@@ -73,6 +75,7 @@ class _IncomePageState extends State<IncomePage> {
         amount: amount,
         date: date,
         category: category,
+        attachmentPath: _attachmentPath, // Añade attachmentPath al crear una nueva entrada
       );
       await widget.createEntryUseCase.execute(widget.aggregate, entry);
       _loadEntries();
@@ -93,6 +96,7 @@ class _IncomePageState extends State<IncomePage> {
         amount: amount,
         date: date,
         category: category,
+        attachmentPath: _attachmentPath, // Añade attachmentPath al actualizar una entrada
       );
       await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
       _loadEntries();
@@ -105,6 +109,7 @@ class _IncomePageState extends State<IncomePage> {
     _amountController.clear();
     _selectedCategory = null;
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _attachmentPath = null; // Limpia el campo de adjunto
   }
 
   void _showEntryDialog({IncomeEntry? entry}) {
@@ -113,6 +118,7 @@ class _IncomePageState extends State<IncomePage> {
       _amountController.text = entry.amount.toString();
       _selectedCategory = entry.category;
       _dateController.text = DateFormat('yyyy-MM-dd').format(entry.date);
+      _attachmentPath = entry.attachmentPath; // Carga la ruta del adjunto existente
     } else {
       _clearFields();
     }
@@ -167,7 +173,6 @@ class _IncomePageState extends State<IncomePage> {
                     value: _selectedCategory,
                     decoration: InputDecoration(
                       labelText: 'Categoría',
-                      // suffixIcon: Icon(Icons.arrow_drop_down),
                     ),
                     items: widget.categoryAggregate.categories.map((Category category) {
                       return DropdownMenuItem<String>(
@@ -326,3 +331,5 @@ class _IncomePageState extends State<IncomePage> {
     );
   }
 }
+
+
