@@ -5,6 +5,7 @@ class EgressEntry {
   final DateTime date;
   final String category;
   final String provider;
+  final String? attachmentPath; // Añade el campo attachmentPath
 
   EgressEntry({
     this.id,
@@ -13,5 +14,6 @@ class EgressEntry {
     required this.date,
     required this.category,
     required this.provider,
+    this.attachmentPath,
   });
 }

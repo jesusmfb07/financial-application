@@ -5,9 +5,10 @@ import '../../application/ports/egress_port.dart';
 import '../../domain/entities/egress_entry_entity.dart';
 import '../mappers/egress_mappers.dart';
 
-class EgressEntrySQLiteAdapter implements EgressEntryPort{
+  class EgressEntrySQLiteAdapter implements EgressEntryPort{
   static final EgressEntrySQLiteAdapter _instance = EgressEntrySQLiteAdapter._internal();
   Database? _database;
+
 
   factory EgressEntrySQLiteAdapter() {
     return _instance;
@@ -30,7 +31,20 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort{
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE egress_entries (
+        CREATE TABLE IF NOT EXISTS egress_entries (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          description TEXT,
+          amount REAL,
+          date TEXT,
+          category TEXT,
+          provider TEXT
+        )
+      ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 1) {
+          await db.execute('''
+          CREATE TABLE IF NOT EXISTS egress_entries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             description TEXT,
             amount REAL,
@@ -39,6 +53,7 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort{
             provider TEXT
           )
         ''');
+        }
       },
     );
   }
@@ -51,7 +66,9 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort{
   Future<List<EgressEntry>> getEntries() async {
     final db = await database;
     final maps = await db.query('egress_entries');
-    return maps.map((map) => EgressEntryMapper.fromMap(map)).toList();
+    return List.generate(maps.length, (i) {
+      return EgressEntryMapper.fromMap(maps[i]);
+    });
   }
 
   Future<void> updateEntry(EgressEntry entry) async {

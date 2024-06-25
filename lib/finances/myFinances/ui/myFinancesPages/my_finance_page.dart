@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import '../../../../category/application/use_cases/category_use_case.dart';
 import '../../../../category/application/use_cases/handler/queries/get_categories_command.dart';
 import '../../../../category/domain/aggregates/category_aggregate.dart';
-import '../../../../category/infrastructure/adapters/categorySQLiteAdapter.dart';
-import '../../../../category/ui/myCategory/category_page.dart';
+import '../../../../category/infrastructure/adapters/category_sqlite_adapter.dart';
+import '../../../../provider/application/use_cases/handler/queries/get_provider_query.dart';
+import '../../../../provider/application/use_cases/provider_use_case.dart';
+import '../../../../provider/domain/aggregates/provider_aggregate.dart';
+import '../../../../provider/infrastructure/adapters/provider_database_adapter.dart';
 import '../../../../shared/ui/navigation_bar_page.dart';
 import '../../application/ports/egress_port.dart';
 import '../../application/ports/income_port.dart';
@@ -33,6 +36,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
   late IncomeEntryAggregate incomeAggregate;
   late EgressEntryAggregate egressAggregate;
   late CategoryAggregate categoryAggregate;
+  late ProviderAggregate providerAggregate;
   late IncomeEntryPort incomeEntryPort;
   late EgressEntryPort egressEntryPort;
   late CreateIncomeEntryUseCase createIncomeEntryUseCase;
@@ -42,6 +46,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
   late UpdateEgressEntryUseCase updateEgressEntryUseCase;
   late GetEgressEntriesUseCase getEgressEntriesUseCase;
   late GetCategoriesUseCase getCategoriesUseCase;
+  late GetProvidersUseCase getProvidersUseCase;
 
   @override
   void initState() {
@@ -53,6 +58,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
     incomeEntryPort = IncomeEntrySQLiteAdapter();
     egressEntryPort = EgressEntrySQLiteAdapter();
     categoryAggregate = CategoryAggregate(categories: []);
+    providerAggregate = ProviderAggregate(providers: []);
     incomeAggregate = IncomeEntryAggregate(entries: []);
     egressAggregate = EgressEntryAggregate(entries: []);
     createIncomeEntryUseCase = CreateIncomeEntryCommand(incomeEntryPort);
@@ -62,6 +68,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
     updateEgressEntryUseCase = UpdateEgressEntryCommand(egressEntryPort);
     getEgressEntriesUseCase = GetEgressEntriesQuery(egressEntryPort);
     getCategoriesUseCase = GetCategoriesQuery(CategorySQLiteAdapter());
+    getProvidersUseCase = GetProvidersQuery(ProviderSQLiteAdapter());
 
     _loadInitialData();
   }
@@ -70,11 +77,13 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
     final incomeEntries = await getIncomeEntriesUseCase.execute(incomeAggregate);
     final egressEntries = await getEgressEntriesUseCase.execute(egressAggregate);
     final categories = await getCategoriesUseCase.execute(categoryAggregate);
+    final providers = await getProvidersUseCase.execute(providerAggregate);
 
     setState(() {
       incomeAggregate = IncomeEntryAggregate(entries: incomeEntries);
       egressAggregate = EgressEntryAggregate(entries: egressEntries);
       categoryAggregate = CategoryAggregate(categories: categories);
+      providerAggregate = ProviderAggregate(providers: providers);
     });
   }
 
@@ -132,8 +141,11 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
         createEntryUseCase: createEgressEntryUseCase,
         updateEntryUseCase: updateEgressEntryUseCase,
         getEntriesUseCase: getEgressEntriesUseCase,
+        getCategoriesUseCase: getCategoriesUseCase,
+        getProvidersUseCase: getProvidersUseCase,
         aggregate: egressAggregate,
-        categories: categoryAggregate.categories.map((e) => e.name).toList(),
+        categoryAggregate: categoryAggregate,
+        providerAggregate: providerAggregate,
       ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
