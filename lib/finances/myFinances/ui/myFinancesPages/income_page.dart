@@ -1,5 +1,9 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../category/application/use_cases/category_use_case.dart';
+import '../../../../category/domain/aggregates/category_aggregate.dart';
+import '../../../../category/domain/entities/category_entity.dart';
 import '../../application/use_cases/income_use_case.dart';
 import '../../domain/aggregates/income_aggregate.dart';
 import '../../domain/entities/income_entry_entity.dart';
@@ -8,15 +12,19 @@ class IncomePage extends StatefulWidget {
   final CreateIncomeEntryUseCase createEntryUseCase;
   final UpdateIncomeEntryUseCase updateEntryUseCase;
   final GetIncomeEntriesUseCase getEntriesUseCase;
+  final GetCategoriesUseCase getCategoriesUseCase;
   final IncomeEntryAggregate aggregate;
-  final List<String> categories;
+  final CategoryAggregate categoryAggregate;
+  final String? attachmentPath;
 
   IncomePage({
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
     required this.getEntriesUseCase,
+    required this.getCategoriesUseCase,
     required this.aggregate,
-    required this.categories,
+    required this.categoryAggregate,
+    required this.attachmentPath,
   });
 
   @override
@@ -26,14 +34,15 @@ class IncomePage extends StatefulWidget {
 class _IncomePageState extends State<IncomePage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  String? _selectedCategory;
 
   @override
   void initState() {
     super.initState();
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _loadEntries();
+    _loadCategories();
   }
 
   Future<void> _loadEntries() async {
@@ -44,13 +53,21 @@ class _IncomePageState extends State<IncomePage> {
     });
   }
 
+  Future<void> _loadCategories() async {
+    final categories = await widget.getCategoriesUseCase.execute(widget.categoryAggregate);
+    setState(() {
+      widget.categoryAggregate.categories.clear();
+      widget.categoryAggregate.categories.addAll(categories);
+    });
+  }
+
   void _addEntry() async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final category = _categoryController.text;
+    final category = _selectedCategory;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category.isNotEmpty) {
+    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
       final entry = IncomeEntry(
         description: description,
         amount: amount,
@@ -66,12 +83,12 @@ class _IncomePageState extends State<IncomePage> {
   void _updateEntry(IncomeEntry entry) async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final category = _categoryController.text;
+    final category = _selectedCategory;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category.isNotEmpty) {
+    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
       final updatedEntry = IncomeEntry(
-        id: entry.id, // Assuming you have an id to identify the entry
+        id: entry.id,
         description: description,
         amount: amount,
         date: date,
@@ -86,7 +103,7 @@ class _IncomePageState extends State<IncomePage> {
   void _clearFields() {
     _descriptionController.clear();
     _amountController.clear();
-    _categoryController.clear();
+    _selectedCategory = null;
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
   }
 
@@ -94,7 +111,7 @@ class _IncomePageState extends State<IncomePage> {
     if (entry != null) {
       _descriptionController.text = entry.description;
       _amountController.text = entry.amount.toString();
-      _categoryController.text = entry.category;
+      _selectedCategory = entry.category;
       _dateController.text = DateFormat('yyyy-MM-dd').format(entry.date);
     } else {
       _clearFields();
@@ -146,9 +163,35 @@ class _IncomePageState extends State<IncomePage> {
                     decoration: InputDecoration(labelText: 'Descripción'),
                   ),
                   SizedBox(height: 16.0),
-                  TextField(
-                    controller: _categoryController,
-                    decoration: InputDecoration(labelText: 'Categoría'),
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: InputDecoration(
+                      labelText: 'Categoría',
+                      // suffixIcon: Icon(Icons.arrow_drop_down),
+                    ),
+                    items: widget.categoryAggregate.categories.map((Category category) {
+                      return DropdownMenuItem<String>(
+                        value: category.name,
+                        child: Text(category.name),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedCategory = newValue;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final result = await FilePicker.platform.pickFiles();
+                      if (result != null) {
+                        setState(() {
+                          _attachmentPath = result.files.single.path!;
+                        });
+                      }
+                    },
+                    child: Text('Adjuntar imagen/documento'),
                   ),
                 ],
               ),
@@ -210,22 +253,65 @@ class _IncomePageState extends State<IncomePage> {
                       BoxShadow(
                         color: Colors.black12,
                         blurRadius: 4.0,
-                        offset: Offset(0, 4),
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: ListTile(
-                    title: Text(entry.description),
-                    subtitle: Text('${entry.amount} (${entry.category})'),
-                    trailing: IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () {
-                        _showEntryDialog(entry: entry);
-                      },
-                    ),
-                    onTap: () {
-                      _showEntryDialog(entry: entry);
-                    },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (entry.attachmentPath != null)
+                        Container(
+                          width: 60,
+                          height: 60,
+                          margin: EdgeInsets.only(right: 16.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.0),
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: FileImage(File(entry.attachmentPath!)),
+                            ),
+                          ),
+                        )
+                      else
+                        Container(
+                          width: 60,
+                          height: 60,
+                          margin: EdgeInsets.only(right: 16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Icon(Icons.insert_drive_file, color: Colors.grey[600]),
+                        ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Fecha: ${DateFormat('yyyy-MM-dd').format(entry.date)}',
+                              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Monto: \$${entry.amount.toStringAsFixed(2)}',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
+                            Text(
+                              'Descripción: ${entry.description}',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
+                            Text(
+                              'Categoría: ${entry.category}',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () => _showEntryDialog(entry: entry),
+                      ),
+                    ],
                   ),
                 );
               },
