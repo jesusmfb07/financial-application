@@ -1,14 +1,13 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../application/ports/egress_port.dart';
 import '../../domain/entities/egress_entry_entity.dart';
 import '../mappers/egress_mappers.dart';
 
-  class EgressEntrySQLiteAdapter implements EgressEntryPort{
+class EgressEntrySQLiteAdapter implements EgressEntryPort {
   static final EgressEntrySQLiteAdapter _instance = EgressEntrySQLiteAdapter._internal();
   Database? _database;
-
 
   factory EgressEntrySQLiteAdapter() {
     return _instance;
@@ -29,7 +28,7 @@ import '../mappers/egress_mappers.dart';
     return await openDatabase(
       path,
       version: 1,
-      onCreate: (db, version) async {
+      onCreate: (db,  version) async {
         await db.execute('''
         CREATE TABLE IF NOT EXISTS egress_entries (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,8 +40,12 @@ import '../mappers/egress_mappers.dart';
         )
       ''');
       },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 1) {
+      onOpen: (db) async {
+        // Verificar si la tabla egress_entries existe
+        final result = await db.rawQuery(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='egress_entries'");
+        if (result.isEmpty) {
+          // La tabla no existe, crearla
           await db.execute('''
           CREATE TABLE IF NOT EXISTS egress_entries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,6 +56,7 @@ import '../mappers/egress_mappers.dart';
             provider TEXT
           )
         ''');
+          print('Table created successfully.');
         }
       },
     );
@@ -80,40 +84,13 @@ import '../mappers/egress_mappers.dart';
       whereArgs: [entry.id],
     );
   }
+
+  Future<void> deleteEntry(int id) async {
+    final db = await database;
+    await db.delete(
+      'egress_entries',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
-
-  // Future<void> deleteEntry(int id) async {
-  //   final db = await database;
-  //   await db.delete(
-  //     'egress_entries',
-  //     where: 'id = ?',
-  //     whereArgs: [id],
-  //   );
-  // }
-  //
-  // Future<EgressEntry?> getEntryById(int id) async {
-  //   final db = await database;
-  //   final maps = await db.query(
-  //     'egress_entries',
-  //     where: 'id = ?',
-  //     whereArgs: [id],
-  //   );
-  //
-  //   if (maps.isNotEmpty) {
-  //     return EgressEntryMapper.fromMap(maps.first);
-  //   }
-  //   return null;
-  // }
-  //
-  // Future<List<EgressEntry>> getEntriesByDateRange(DateTime start, DateTime end) async {
-  //   final db = await database;
-  //   final maps = await db.query(
-  //     'egress_entries',
-  //     where: 'date BETWEEN ? AND ?',
-  //     whereArgs: [start.toIso8601String(), end.toIso8601String()],
-  //   );
-  //   return maps.map((map) => EgressEntryMapper.fromMap(map)).toList();
-
-
-// Implementar otras funciones según sea necesario...
-// }
