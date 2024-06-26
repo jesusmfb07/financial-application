@@ -1,5 +1,3 @@
-
-
 import '../../domain/entities/egress_entry_entity.dart';
 
 class EgressEntryMapper {
@@ -11,6 +9,7 @@ class EgressEntryMapper {
       'date': entry.date.toIso8601String(),
       'category': entry.category,
       'provider': entry.provider,
+      'attachmentPath': entry.attachmentPath, // Incluye attachmentPath aquí
     };
   }
 
@@ -22,6 +21,7 @@ class EgressEntryMapper {
       date: DateTime.parse(map['date']),
       category: map['category'],
       provider: map['provider'],
+      attachmentPath: map['attachmentPath'], // Recupera attachmentPath aquí
     );
   }
 }
