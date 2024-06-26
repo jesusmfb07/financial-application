@@ -24,18 +24,15 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, 'finance.db');
 
-    // Considera eliminar la base de datos existente para forzar una recreación
-    // await deleteDatabase(path);
+    await deleteDatabase(path);
 
     return await openDatabase(
       path,
-      version: 3, // Incrementa la versión
+      version: 3, // Asegúrate de que el número de versión sea correcto
       onCreate: (db, version) async {
-        print('Creating database version $version');
         await _createEgressEntriesTable(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        print('Upgrading database from $oldVersion to $newVersion');
         if (oldVersion < 3) {
           await _createEgressEntriesTable(db);
         }
@@ -44,16 +41,18 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
   }
 
   Future<void> _createEgressEntriesTable(Database db) async {
+    print('Creating egress_entries table');
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS egress_entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        description TEXT,
-        amount REAL,
-        date TEXT,
-        category TEXT,
-        provider TEXT
-      )
-    ''');
+    CREATE TABLE IF NOT EXISTS egress_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      description TEXT,
+      amount REAL,
+      date TEXT,
+      category TEXT,
+      provider TEXT,
+      attachmentPath TEXT // Asegúrate de incluir esta línea
+    )
+  ''');
     print('egress_entries table created or already exists');
   }
 
