@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../ui/navigation_bar_page.dart';
 import '../../application/use_cases/provider_use_case.dart';
 import '../../domain/aggregates/provider_aggregate.dart';
 import '../../domain/entities/provider_entity.dart';
+
 
 class ProviderPage extends StatefulWidget {
   final CreateProviderUseCase createProviderUseCase;
@@ -26,6 +28,7 @@ class _ProviderPageState extends State<ProviderPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _rucController = TextEditingController();
+  int _selectedIndex = 3; // Set the initial index to 3 (Settings)
 
   @override
   void initState() {
@@ -47,8 +50,10 @@ class _ProviderPageState extends State<ProviderPage> {
     final provider = Provider(
       id: id ?? DateTime.now().toString(),
       name: _nameController.text,
-      phoneNumber: _phoneNumberController.text,
-      ruc: _rucController.text,
+      phoneNumber: _phoneNumberController.text.isNotEmpty
+          ? int.tryParse(_phoneNumberController.text)
+          : null,
+      ruc: _rucController.text.isNotEmpty ? int.tryParse(_rucController.text) : null,
     );
 
     if (id == null) {
@@ -60,13 +65,13 @@ class _ProviderPageState extends State<ProviderPage> {
     _nameController.clear();
     _phoneNumberController.clear();
     _rucController.clear();
-    _loadProviders();
+    await _loadProviders(); // Ensure the providers list is updated
   }
 
   Future<void> _deleteProviderById(String id) async {
     final provider = widget.aggregate.providers.firstWhere((p) => p.id == id);
     await widget.deleteProviderUseCase.execute(widget.aggregate, provider);
-    _loadProviders();
+    await _loadProviders(); // Ensure the providers list is updated
   }
 
   void _showAddProviderDialog({
@@ -122,8 +127,8 @@ class _ProviderPageState extends State<ProviderPage> {
             ),
             TextButton(
               child: Text('Guardar'),
-              onPressed: () {
-                _addOrUpdateProvider(id: id);
+              onPressed: () async {
+                await _addOrUpdateProvider(id: id);
                 Navigator.of(context).pop();
               },
             ),
@@ -131,6 +136,13 @@ class _ProviderPageState extends State<ProviderPage> {
         );
       },
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    // Aquí puedes agregar la lógica para cambiar de página o actualizar el contenido según el índice seleccionado
   }
 
   @override
@@ -145,7 +157,7 @@ class _ProviderPageState extends State<ProviderPage> {
           final provider = widget.aggregate.providers[index];
           return ListTile(
             title: Text(provider.name),
-            subtitle: Text(provider.phoneNumber),
+            subtitle: Text(provider.phoneNumber?.toString() ?? 'N/A'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -154,8 +166,8 @@ class _ProviderPageState extends State<ProviderPage> {
                   onPressed: () => _showAddProviderDialog(
                     id: provider.id,
                     initialName: provider.name,
-                    initialPhoneNumber: provider.phoneNumber,
-                    initialRuc: provider.ruc,
+                    initialPhoneNumber: provider.phoneNumber?.toString(),
+                    initialRuc: provider.ruc?.toString(),
                   ),
                 ),
                 IconButton(
@@ -166,13 +178,13 @@ class _ProviderPageState extends State<ProviderPage> {
             ),
             onTap: () {
               _nameController.text = provider.name;
-              _phoneNumberController.text = provider.phoneNumber;
-              _rucController.text = provider.ruc;
+              _phoneNumberController.text = provider.phoneNumber?.toString() ?? '';
+              _rucController.text = provider.ruc?.toString() ?? '';
               _showAddProviderDialog(
                 id: provider.id,
                 initialName: provider.name,
-                initialPhoneNumber: provider.phoneNumber,
-                initialRuc: provider.ruc,
+                initialPhoneNumber: provider.phoneNumber?.toString(),
+                initialRuc: provider.ruc?.toString(),
               );
             },
           );
@@ -182,6 +194,10 @@ class _ProviderPageState extends State<ProviderPage> {
         onPressed: () => _showAddProviderDialog(),
         tooltip: 'Agregar proveedor',
         child: Icon(Icons.add),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }

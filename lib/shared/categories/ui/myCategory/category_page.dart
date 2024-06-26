@@ -25,6 +25,7 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   final TextEditingController _categoryController = TextEditingController();
+  int _selectedIndex = 3;
 
   @override
   void initState() {

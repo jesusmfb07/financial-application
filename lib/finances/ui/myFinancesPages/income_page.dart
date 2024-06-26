@@ -1,13 +1,9 @@
-import 'dart:io';
-import 'dart:ui' as ui;
-import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
+import 'dart:io'; // Importa dart:io para usar la clase File
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:pdf_render/pdf_render.dart';
-import 'package:pdf_render/pdf_render_widgets.dart';
 import '../../../../shared/categories/application/use_cases/category_use_case.dart';
 import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../../shared/categories/domain/entities/category_entity.dart';
@@ -43,8 +39,7 @@ class _IncomePageState extends State<IncomePage> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   String? _selectedCategory;
-  String? _attachmentPath;
-  Map<String, ImageProvider?> pdfThumbnails = {};
+  String? _attachmentPath; // Define _attachmentPath en el estado del widget
 
   @override
   void initState() {
@@ -59,27 +54,6 @@ class _IncomePageState extends State<IncomePage> {
     setState(() {
       widget.aggregate.entries.clear();
       widget.aggregate.entries.addAll(entries);
-    });
-    for (var entry in entries) {
-      if (entry.attachmentPath != null && entry.attachmentPath!.toLowerCase().endsWith('.pdf')) {
-        _generatePdfThumbnail(entry.attachmentPath!);
-      }
-    }
-  }
-
-  Future<void> _generatePdfThumbnail(String pdfPath) async {
-    final doc = await PdfDocument.openFile(pdfPath);
-    final page = await doc.getPage(1);
-    final pageImage = await page.render(
-      width: page.width!.toInt(),
-      height: page.height!.toInt(),
-    );
-    final image = await pageImage.createImageIfNotAvailable();
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    final pngBytes = byteData!.buffer.asUint8List();
-
-    setState(() {
-      pdfThumbnails[pdfPath] = MemoryImage(pngBytes);
     });
   }
 
@@ -103,7 +77,7 @@ class _IncomePageState extends State<IncomePage> {
         amount: amount,
         date: date,
         category: category,
-        attachmentPath: _attachmentPath,
+        attachmentPath: _attachmentPath, // Añade attachmentPath al crear una nueva entrada
       );
       await widget.createEntryUseCase.execute(widget.aggregate, entry);
       _loadEntries();
@@ -124,7 +98,7 @@ class _IncomePageState extends State<IncomePage> {
         amount: amount,
         date: date,
         category: category,
-        attachmentPath: _attachmentPath,
+        attachmentPath: _attachmentPath, // Añade attachmentPath al actualizar una entrada
       );
       await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
       _loadEntries();
@@ -137,7 +111,7 @@ class _IncomePageState extends State<IncomePage> {
     _amountController.clear();
     _selectedCategory = null;
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    _attachmentPath = null;
+    _attachmentPath = null; // Limpia el campo de adjunto
   }
 
   void _showEntryDialog({IncomeEntry? entry}) {
@@ -146,7 +120,7 @@ class _IncomePageState extends State<IncomePage> {
       _amountController.text = entry.amount.toString();
       _selectedCategory = entry.category;
       _dateController.text = DateFormat('yyyy-MM-dd').format(entry.date);
-      _attachmentPath = entry.attachmentPath;
+      _attachmentPath = entry.attachmentPath; // Carga la ruta del adjunto existente
     } else {
       _clearFields();
     }
@@ -222,9 +196,6 @@ class _IncomePageState extends State<IncomePage> {
                         setState(() {
                           _attachmentPath = result.files.single.path!;
                         });
-                        if (_attachmentPath != null && _attachmentPath!.toLowerCase().endsWith('.pdf')) {
-                          _generatePdfThumbnail(_attachmentPath!);
-                        }
                       }
                     },
                     child: Text('Adjuntar imagen/documento'),
@@ -280,6 +251,7 @@ class _IncomePageState extends State<IncomePage> {
         ),
       );
     } else {
+      // Abre el documento con cualquier otra aplicación
       OpenFile.open(path);
     }
   }
@@ -287,9 +259,6 @@ class _IncomePageState extends State<IncomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Ingresos'),
-      ),
       body: FutureBuilder<List<IncomeEntry>>(
         future: widget.getEntriesUseCase.execute(widget.aggregate),
         builder: (context, snapshot) {
@@ -298,23 +267,22 @@ class _IncomePageState extends State<IncomePage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No hay entradas disponibles.'));
+            return Center(child: Text('No hay ingresos'));
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final entry = snapshot.data![index];
                 return Container(
-                  margin: EdgeInsets.all(8.0),
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   padding: EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 2,
-                        blurRadius: 4,
+                        color: Colors.black12,
+                        blurRadius: 4.0,
                         offset: Offset(0, 2),
                       ),
                     ],
@@ -349,9 +317,7 @@ class _IncomePageState extends State<IncomePage> {
                               borderRadius: BorderRadius.circular(8.0),
                               image: DecorationImage(
                                 fit: BoxFit.cover,
-                                image: entry.attachmentPath!.toLowerCase().endsWith('.pdf')
-                                    ? pdfThumbnails[entry.attachmentPath] ?? AssetImage('assets/pdf_placeholder.png')
-                                    : FileImage(File(entry.attachmentPath!)) as ImageProvider,
+                                image: FileImage(File(entry.attachmentPath!)),
                               ),
                             ),
                           ),

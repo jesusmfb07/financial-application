@@ -1,8 +1,9 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../application/ports/provider_port.dart';
 import '../../domain/entities/provider_entity.dart';
+import '../mappers/providers_mappers.dart';
 
 class ProviderSQLiteAdapter implements ProviderPort {
   static final ProviderSQLiteAdapter _instance = ProviderSQLiteAdapter._internal();
@@ -32,8 +33,8 @@ class ProviderSQLiteAdapter implements ProviderPort {
           CREATE TABLE providers (
             id TEXT PRIMARY KEY,
             name TEXT,
-            phoneNumber TEXT,
-            ruc TEXT
+            phoneNumber INTEGER,
+            ruc INTEGER
           )
         ''');
       },
@@ -43,7 +44,7 @@ class ProviderSQLiteAdapter implements ProviderPort {
   @override
   Future<void> createProvider(Provider provider) async {
     final db = await database;
-    await db.insert('providers', provider.toMap());
+    await db.insert('providers', ProviderMapper.toMap(provider));
   }
 
   @override
@@ -51,7 +52,7 @@ class ProviderSQLiteAdapter implements ProviderPort {
     final db = await database;
     await db.update(
       'providers',
-      provider.toMap(),
+      ProviderMapper.toMap(provider),
       where: 'id = ?',
       whereArgs: [provider.id],
     );
@@ -71,6 +72,6 @@ class ProviderSQLiteAdapter implements ProviderPort {
   Future<List<Provider>> getProviders() async {
     final db = await database;
     final result = await db.query('providers');
-    return result.map((map) => Provider.fromMap(map)).toList();
+    return result.map((map) => ProviderMapper.fromMap(map)).toList();
   }
 }
