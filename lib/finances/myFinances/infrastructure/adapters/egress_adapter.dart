@@ -27,14 +27,14 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
 
     return await openDatabase(
       path,
-      version: 3, // Incrementa la versión
+      version: 5, // Incrementa la versión
       onCreate: (db, version) async {
         print('Creating database version $version');
         await _createTable(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         print('Upgrading database from $oldVersion to $newVersion');
-        if (oldVersion < 3) {
+        if (oldVersion < 5) {
           await _createTable(db);
         }
       },

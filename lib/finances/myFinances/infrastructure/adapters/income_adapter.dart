@@ -27,7 +27,7 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 5,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE income_entries (
