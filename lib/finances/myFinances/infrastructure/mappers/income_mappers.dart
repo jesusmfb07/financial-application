@@ -1,4 +1,3 @@
-import '../../../incomeEntry/domain/entities/income_entry_entity.dart';
 import '../../domain/entities/income_entry_entity.dart';
 
 class IncomeEntryMapper {
@@ -9,6 +8,7 @@ class IncomeEntryMapper {
       'amount': entry.amount,
       'date': entry.date.toIso8601String(),
       'category': entry.category,
+      'attachmentPath': entry.attachmentPath,
     };
   }
 
@@ -19,6 +19,7 @@ class IncomeEntryMapper {
       amount: map['amount'],
       date: DateTime.parse(map['date']),
       category: map['category'],
+      attachmentPath: map['attachmentPath'],
     );
   }
 }

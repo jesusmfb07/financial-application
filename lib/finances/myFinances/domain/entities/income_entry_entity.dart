@@ -4,10 +4,10 @@ class IncomeEntry {
   final double amount;
   final DateTime date;
   final String category;
-  final String? attachmentPath; // Añade el campo attachmentPath
+  final String? attachmentPath;
 
   IncomeEntry({
-    this.id, // Proporciona un valor predeterminado para id
+    this.id,
     required this.description,
     required this.amount,
     required this.date,

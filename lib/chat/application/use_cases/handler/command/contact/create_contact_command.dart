@@ -1,5 +1,5 @@
 import '../../../../../domain/aggregates/contact_aggregate.dart';
-import '../../../../../domain/entities/contact.entity.dart';
+import '../../../../../domain/entities/contact_entity.dart';
 import '../../../../ports/contact/contact_port.dart';
 import '../../../contact/contact_use_case.dart';
 

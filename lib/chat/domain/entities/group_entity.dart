@@ -1,4 +1,4 @@
-import 'contact.entity.dart'; // Asegúrate de importar la entidad Contacto correcta desde domain
+import 'contact_entity.dart'; // Asegúrate de importar la entidad Contacto correcta desde domain
 
 class Group {
   final String name;

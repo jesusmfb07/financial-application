@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../application/use_cases/handler/command/contact/create_contact_command.dart';
 import 'contact_form.dart';
-import '../../domain/entities/contact.entity.dart';
+import '../../domain/entities/contact_entity.dart';
 import '../../infrastructure/adapters/database_adapter.dart';
 import '../../domain/aggregates/contact_aggregate.dart';
 import 'contact_styles.dart';

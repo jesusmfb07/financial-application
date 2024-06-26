@@ -1,5 +1,5 @@
 import '../../application/ports/contact/contact_port.dart';
-import '../../domain/entities/contact.entity.dart';
+import '../../domain/entities/contact_entity.dart';
 
 
 class ContactAdapter implements ContactPort {

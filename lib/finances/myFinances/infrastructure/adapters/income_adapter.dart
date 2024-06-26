@@ -27,7 +27,7 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE income_entries (
@@ -35,7 +35,8 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
             description TEXT,
             amount REAL,
             date TEXT,
-            category TEXT
+            category TEXT,
+            attachmentPath TEXT
           )
         ''');
       },
@@ -65,5 +66,10 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
     );
   }
 
-// Implementar otras funciones según sea necesario...
+  Future<void> closeDatabase() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
+  }
 }

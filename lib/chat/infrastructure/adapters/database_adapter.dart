@@ -1,6 +1,6 @@
 // import 'package:sqflite/sqflite.dart';
 // import 'package:path/path.dart';
-// import '../../domain/entities/contact.entity.dart';
+// import '../../domain/entities/contact_entity.dart';
 // import '../../application/ports/contact/contact_port.dart';
 //
 // class DatabaseAdapter implements ContactPort {
@@ -57,7 +57,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../application/ports/contact/contact_port.dart';
-import '../../domain/entities/contact.entity.dart';
+import '../../domain/entities/contact_entity.dart';
 
 class DatabaseAdapter implements ContactPort {
   static final DatabaseAdapter _instance = DatabaseAdapter._internal();

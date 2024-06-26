@@ -1,4 +1,4 @@
-import '../../../domain/entities/contact.entity.dart';
+import '../../../domain/entities/contact_entity.dart';
 
 abstract class ContactPort {
   Future<List<Contact>> getContacts();

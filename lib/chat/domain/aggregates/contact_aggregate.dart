@@ -1,4 +1,4 @@
-import '../entities/contact.entity.dart';
+import '../entities/contact_entity.dart';
 
 class ContactAggregate {
   final List<Contact> contacts;

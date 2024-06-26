@@ -1,4 +1,4 @@
-import '../../domain/entities/group.entity.dart';
+import '../../domain/entities/group_entity.dart';
 import '../ports/group/group_port.dart';
 
 class GetGroups {

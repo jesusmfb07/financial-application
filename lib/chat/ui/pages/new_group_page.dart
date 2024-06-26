@@ -3,7 +3,7 @@ import '../../application/use_cases/handler/queries/contact/get_contacts_query.d
 import '../../application/use_cases/search_contacts.dart';
 import '../../application/use_cases/create_group_use_case.dart';
 import '../../domain/aggregates/contact_aggregate.dart';
-import '../../domain/entities/contact.entity.dart';
+import '../../domain/entities/contact_entity.dart';
 import '../../infrastructure/adapters/database_adapter.dart';
 import '../../infrastructure/adapters/group_adapter.dart';
 import '../contact/create_contact_page.dart';

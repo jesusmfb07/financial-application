@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../application/use_cases/handler/command/contact/delete_contact_command.dart';
 import '../../application/use_cases/handler/queries/contact/get_contacts_query.dart';
 import '../../domain/aggregates/contact_aggregate.dart';
-import '../../domain/entities/contact.entity.dart';
+import '../../domain/entities/contact_entity.dart';
 import '../../infrastructure/adapters/database_adapter.dart';
 import '../contact/create_contact_page.dart';
 import '../contact/update_contact_page.dart';

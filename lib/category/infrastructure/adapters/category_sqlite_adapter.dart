@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../domain/entities/category_entity.dart';
 import '../../application/ports/category_port.dart';
-import 'mappers.dart';
+import 'category_mappers.dart';
 
 class CategorySQLiteAdapter implements CategoryPort {
   static final CategorySQLiteAdapter _instance = CategorySQLiteAdapter._internal();

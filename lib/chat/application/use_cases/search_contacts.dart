@@ -1,4 +1,4 @@
-import '../../domain/entities/contact.entity.dart';
+import '../../domain/entities/contact_entity.dart';
 
 class SearchContacts {
   List<Contact> execute(List<Contact> contacts, String query) {

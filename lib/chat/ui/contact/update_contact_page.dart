@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:exercises_flutter2/chat/application/use_cases/handler/command/contact/update_contact_command.dart';
-import '../../domain/entities/contact.entity.dart';
+import '../../domain/entities/contact_entity.dart';
 import '../../infrastructure/adapters/database_adapter.dart';
 import 'contact_form.dart';
 import 'contact_styles.dart';

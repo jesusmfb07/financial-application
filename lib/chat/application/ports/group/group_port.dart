@@ -1,4 +1,4 @@
-import '../../../domain/entities/group.entity.dart';
+import '../../../domain/entities/group_entity.dart';
 
 abstract class GroupPort {
   Future<List<Group>> getGroups();

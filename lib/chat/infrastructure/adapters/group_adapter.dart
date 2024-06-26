@@ -1,5 +1,5 @@
 import '../../application/ports/group/group_port.dart';
-import '../../domain/entities/group.entity.dart';
+import '../../domain/entities/group_entity.dart';
 
 class GroupAdapter implements GroupPort {
   @override

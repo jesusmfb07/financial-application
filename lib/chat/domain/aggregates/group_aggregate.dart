@@ -1,4 +1,4 @@
-import '../entities/group.entity.dart';
+import '../entities/group_entity.dart';
 
 class GroupAggregate {
   final List<Group> groups;

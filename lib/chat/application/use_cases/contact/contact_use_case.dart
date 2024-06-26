@@ -1,5 +1,5 @@
 import 'package:exercises_flutter2/chat/domain/aggregates/contact_aggregate.dart';
-import '../../../domain/entities/contact.entity.dart';
+import '../../../domain/entities/contact_entity.dart';
 
 abstract class GetContactsUseCase {
   Future<List<Contact>> execute(ContactAggregate aggregate);

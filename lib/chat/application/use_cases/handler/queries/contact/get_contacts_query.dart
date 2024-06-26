@@ -5,7 +5,7 @@
 // }
 import 'package:exercises_flutter2/chat/infrastructure/adapters/database_adapter.dart';
 import '../../../../../domain/aggregates/contact_aggregate.dart';
-import '../../../../../domain/entities/contact.entity.dart';
+import '../../../../../domain/entities/contact_entity.dart';
 import '../../../contact/contact_use_case.dart';
 
 class GetContactsQuery implements GetContactsUseCase {
