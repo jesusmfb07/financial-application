@@ -2,9 +2,9 @@ import 'dart:io';  // Importa dart:io para usar la clase File
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../category/application/use_cases/category_use_case.dart';
-import '../../../../category/domain/aggregates/category_aggregate.dart';
-import '../../../../category/domain/entities/category_entity.dart';
+import '../../../../shared/category/application/use_cases/category_use_case.dart';
+import '../../../../shared/category/domain/aggregates/category_aggregate.dart';
+import '../../../../shared/category/domain/entities/category_entity.dart';
 import '../../application/use_cases/income_use_case.dart';
 import '../../domain/aggregates/income_aggregate.dart';
 import '../../domain/entities/income_entry_entity.dart';
