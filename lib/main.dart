@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'chat/infrastructure/adapters/contact_adapter.dart';
 import 'chat/ui/pages/expense_manager_page.dart';
-import 'finances/myFinances/infrastructure/adapters/egress_adapter.dart';
-import 'finances/myFinances/infrastructure/adapters/income_adapter.dart';
-import 'finances/myFinances/ui/myFinancesPages/my_finance_page.dart';
+import 'finances/infrastructure/adapters/egress_adapter.dart';
+import 'finances/infrastructure/adapters/income_adapter.dart';
+import 'finances/ui/myFinancesPages/my_finance_page.dart';
 
 void main() {
   runApp(MyApp());

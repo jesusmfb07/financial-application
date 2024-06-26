@@ -1,53 +1,50 @@
 import 'dart:io';
+import 'dart:ui' as ui;
+import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../shared/category/application/use_cases/category_use_case.dart';
-import '../../../../shared/category/domain/aggregates/category_aggregate.dart';
-import '../../../../shared/category/domain/entities/category_entity.dart';
-import '../../../../shared/provider/application/use_cases/provider_use_case.dart';
-import '../../../../shared/provider/domain/aggregates/provider_aggregate.dart';
-import '../../../../shared/provider/domain/entities/provider_entity.dart';
-import '../../application/use_cases/egress_use_case.dart';
-import '../../domain/aggregates/egress_aggregate.dart';
-import '../../domain/entities/egress_entry_entity.dart';
+import 'package:open_file/open_file.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:pdf_render/pdf_render.dart';
+import 'package:pdf_render/pdf_render_widgets.dart';
+import '../../../../shared/categories/application/use_cases/category_use_case.dart';
+import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
+import '../../../../shared/categories/domain/entities/category_entity.dart';
+import '../../application/use_cases/income_use_case.dart';
+import '../../domain/aggregates/income_aggregate.dart';
+import '../../domain/entities/income_entry_entity.dart';
 
-class EgressPage extends StatefulWidget {
-  final CreateEgressEntryUseCase createEntryUseCase;
-  final UpdateEgressEntryUseCase updateEntryUseCase;
-  final GetEgressEntriesUseCase getEntriesUseCase;
+class IncomePage extends StatefulWidget {
+  final CreateIncomeEntryUseCase createEntryUseCase;
+  final UpdateIncomeEntryUseCase updateEntryUseCase;
+  final GetIncomeEntriesUseCase getEntriesUseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
-  final GetProvidersUseCase getProvidersUseCase;
-  final EgressEntryAggregate aggregate;
+  final IncomeEntryAggregate aggregate;
   final CategoryAggregate categoryAggregate;
-  final ProviderAggregate providerAggregate;
   final String? attachmentPath;
-  bool _isInitialized = false;
 
-  EgressPage({
+  IncomePage({
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
     required this.getEntriesUseCase,
     required this.getCategoriesUseCase,
-    required this.getProvidersUseCase,
     required this.aggregate,
     required this.categoryAggregate,
-    required this.providerAggregate,
     this.attachmentPath,
   });
 
   @override
-  _EgressPageState createState() => _EgressPageState();
+  _IncomePageState createState() => _IncomePageState();
 }
 
-class _EgressPageState extends State<EgressPage> {
+class _IncomePageState extends State<IncomePage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _providerController = TextEditingController();
   String? _selectedCategory;
-  String? _selectedProvider;
   String? _attachmentPath;
+  Map<String, ImageProvider?> pdfThumbnails = {};
 
   @override
   void initState() {
@@ -55,7 +52,6 @@ class _EgressPageState extends State<EgressPage> {
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _loadEntries();
     _loadCategories();
-    _loadProviders();
   }
 
   Future<void> _loadEntries() async {
@@ -63,6 +59,27 @@ class _EgressPageState extends State<EgressPage> {
     setState(() {
       widget.aggregate.entries.clear();
       widget.aggregate.entries.addAll(entries);
+    });
+    for (var entry in entries) {
+      if (entry.attachmentPath != null && entry.attachmentPath!.toLowerCase().endsWith('.pdf')) {
+        _generatePdfThumbnail(entry.attachmentPath!);
+      }
+    }
+  }
+
+  Future<void> _generatePdfThumbnail(String pdfPath) async {
+    final doc = await PdfDocument.openFile(pdfPath);
+    final page = await doc.getPage(1);
+    final pageImage = await page.render(
+      width: page.width!.toInt(),
+      height: page.height!.toInt(),
+    );
+    final image = await pageImage.createImageIfNotAvailable();
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final pngBytes = byteData!.buffer.asUint8List();
+
+    setState(() {
+      pdfThumbnails[pdfPath] = MemoryImage(pngBytes);
     });
   }
 
@@ -74,28 +91,18 @@ class _EgressPageState extends State<EgressPage> {
     });
   }
 
-  Future<void> _loadProviders() async {
-    final providers = await widget.getProvidersUseCase.execute(widget.providerAggregate);
-    setState(() {
-      widget.providerAggregate.providers.clear();
-      widget.providerAggregate.providers.addAll(providers);
-    });
-  }
-
   void _addEntry() async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final category = _selectedCategory;
-    final provider = _selectedProvider;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty && provider != null && provider.isNotEmpty) {
-      final entry = EgressEntry(
+    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
+      final entry = IncomeEntry(
         description: description,
         amount: amount,
         date: date,
         category: category,
-        provider: provider,
         attachmentPath: _attachmentPath,
       );
       await widget.createEntryUseCase.execute(widget.aggregate, entry);
@@ -104,21 +111,19 @@ class _EgressPageState extends State<EgressPage> {
     }
   }
 
-  void _updateEntry(EgressEntry entry) async {
+  void _updateEntry(IncomeEntry entry) async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final category = _selectedCategory;
-    final provider = _selectedProvider;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty && provider != null && provider.isNotEmpty) {
-      final updatedEntry = EgressEntry(
+    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
+      final updatedEntry = IncomeEntry(
         id: entry.id,
         description: description,
         amount: amount,
         date: date,
         category: category,
-        provider: provider,
         attachmentPath: _attachmentPath,
       );
       await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
@@ -131,17 +136,15 @@ class _EgressPageState extends State<EgressPage> {
     _descriptionController.clear();
     _amountController.clear();
     _selectedCategory = null;
-    _selectedProvider = null;
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _attachmentPath = null;
   }
 
-  void _showEntryDialog({EgressEntry? entry}) {
+  void _showEntryDialog({IncomeEntry? entry}) {
     if (entry != null) {
       _descriptionController.text = entry.description;
       _amountController.text = entry.amount.toString();
       _selectedCategory = entry.category;
-      _selectedProvider = entry.provider;
       _dateController.text = DateFormat('yyyy-MM-dd').format(entry.date);
       _attachmentPath = entry.attachmentPath;
     } else {
@@ -152,7 +155,7 @@ class _EgressPageState extends State<EgressPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Center(child: Text(entry == null ? 'Nuevo Egreso' : 'Editar Egreso')),
+          title: Center(child: Text(entry == null ? 'Nuevo Ingreso' : 'Editar Ingreso')),
           content: Container(
             width: MediaQuery.of(context).size.width * 0.8,
             child: SingleChildScrollView(
@@ -212,24 +215,6 @@ class _EgressPageState extends State<EgressPage> {
                     },
                   ),
                   SizedBox(height: 16.0),
-                  DropdownButtonFormField<String>(
-                    value: _selectedProvider,
-                    decoration: InputDecoration(
-                      labelText: 'Proveedor',
-                    ),
-                    items: widget.providerAggregate.providers.map((Provider provider) {
-                      return DropdownMenuItem<String>(
-                        value: provider.name,
-                        child: Text(provider.name),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        _selectedProvider = newValue;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () async {
                       final result = await FilePicker.platform.pickFiles();
@@ -237,6 +222,9 @@ class _EgressPageState extends State<EgressPage> {
                         setState(() {
                           _attachmentPath = result.files.single.path!;
                         });
+                        if (_attachmentPath != null && _attachmentPath!.toLowerCase().endsWith('.pdf')) {
+                          _generatePdfThumbnail(_attachmentPath!);
+                        }
                       }
                     },
                     child: Text('Adjuntar imagen/documento'),
@@ -274,10 +262,35 @@ class _EgressPageState extends State<EgressPage> {
     );
   }
 
+  void _viewAttachment(String path) {
+    if (path.toLowerCase().endsWith('.jpg') ||
+        path.toLowerCase().endsWith('.jpeg') ||
+        path.toLowerCase().endsWith('.png')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImagePreviewPage(imagePath: path),
+        ),
+      );
+    } else if (path.toLowerCase().endsWith('.pdf')) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDFViewerPage(pdfPath: path),
+        ),
+      );
+    } else {
+      OpenFile.open(path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<EgressEntry>>(
+      appBar: AppBar(
+        title: Text('Ingresos'),
+      ),
+      body: FutureBuilder<List<IncomeEntry>>(
         future: widget.getEntriesUseCase.execute(widget.aggregate),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -285,83 +298,80 @@ class _EgressPageState extends State<EgressPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No hay egresos'));
+            return Center(child: Text('No hay entradas disponibles.'));
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final entry = snapshot.data![index];
                 return Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  margin: EdgeInsets.all(8.0),
                   padding: EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4.0,
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 4,
                         offset: Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        'Fecha: ${DateFormat('yyyy-MM-dd').format(entry.date)}',
+                        style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Monto: \$${entry.amount.toStringAsFixed(2)}',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      Text(
+                        'Descripción: ${entry.description}',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      Text(
+                        'Categoría: ${entry.category}',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      SizedBox(height: 16.0),
                       if (entry.attachmentPath != null)
-                        Container(
-                          width: 60,
-                          height: 60,
-                          margin: EdgeInsets.only(right: 16.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: FileImage(File(entry.attachmentPath!)),
+                        GestureDetector(
+                          onTap: () => _viewAttachment(entry.attachmentPath!),
+                          child: Container(
+                            width: double.infinity,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: entry.attachmentPath!.toLowerCase().endsWith('.pdf')
+                                    ? pdfThumbnails[entry.attachmentPath] ?? AssetImage('assets/pdf_placeholder.png')
+                                    : FileImage(File(entry.attachmentPath!)) as ImageProvider,
+                              ),
                             ),
                           ),
                         )
                       else
                         Container(
-                          width: 60,
-                          height: 60,
-                          margin: EdgeInsets.only(right: 16.0),
+                          width: double.infinity,
+                          height: 100,
                           decoration: BoxDecoration(
                             color: Colors.grey[300],
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: Icon(Icons.insert_drive_file, color: Colors.grey[600]),
                         ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Fecha: ${DateFormat('yyyy-MM-dd').format(entry.date)}',
-                              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'Monto: \$${entry.amount.toStringAsFixed(2)}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            Text(
-                              'Descripción: ${entry.description}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            Text(
-                              'Categoría: ${entry.category}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                            Text(
-                              'Proveedor: ${entry.provider}',
-                              style: TextStyle(fontSize: 16.0),
-                            ),
-                          ],
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => _showEntryDialog(entry: entry),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () => _showEntryDialog(entry: entry),
                       ),
                     ],
                   ),
@@ -379,3 +389,38 @@ class _EgressPageState extends State<EgressPage> {
   }
 }
 
+class ImagePreviewPage extends StatelessWidget {
+  final String imagePath;
+
+  ImagePreviewPage({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Vista previa de la imagen'),
+      ),
+      body: Center(
+        child: Image.file(File(imagePath)),
+      ),
+    );
+  }
+}
+
+class PDFViewerPage extends StatelessWidget {
+  final String pdfPath;
+
+  PDFViewerPage({required this.pdfPath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Vista previa del PDF'),
+      ),
+      body: PDFView(
+        filePath: pdfPath,
+      ),
+    );
+  }
+}

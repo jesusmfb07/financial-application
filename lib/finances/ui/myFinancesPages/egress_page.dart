@@ -1,43 +1,54 @@
-import 'dart:io';  // Importa dart:io para usar la clase File
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../shared/category/application/use_cases/category_use_case.dart';
-import '../../../../shared/category/domain/aggregates/category_aggregate.dart';
-import '../../../../shared/category/domain/entities/category_entity.dart';
-import '../../application/use_cases/income_use_case.dart';
-import '../../domain/aggregates/income_aggregate.dart';
-import '../../domain/entities/income_entry_entity.dart';
 
-class IncomePage extends StatefulWidget {
-  final CreateIncomeEntryUseCase createEntryUseCase;
-  final UpdateIncomeEntryUseCase updateEntryUseCase;
-  final GetIncomeEntriesUseCase getEntriesUseCase;
+import '../../../../shared/categories/application/use_cases/category_use_case.dart';
+import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
+import '../../../../shared/categories/domain/entities/category_entity.dart';
+import '../../../../shared/providers/application/use_cases/provider_use_case.dart';
+import '../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
+import '../../../../shared/providers/domain/entities/provider_entity.dart';
+import '../../application/use_cases/egress_use_case.dart';
+import '../../domain/aggregates/egress_aggregate.dart';
+import '../../domain/entities/egress_entry_entity.dart';
+
+class EgressPage extends StatefulWidget {
+  final CreateEgressEntryUseCase createEntryUseCase;
+  final UpdateEgressEntryUseCase updateEntryUseCase;
+  final GetEgressEntriesUseCase getEntriesUseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
-  final IncomeEntryAggregate aggregate;
+  final GetProvidersUseCase getProvidersUseCase;
+  final EgressEntryAggregate aggregate;
   final CategoryAggregate categoryAggregate;
+  final ProviderAggregate providerAggregate;
   final String? attachmentPath;
+  bool _isInitialized = false;
 
-  IncomePage({
+  EgressPage({
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
     required this.getEntriesUseCase,
     required this.getCategoriesUseCase,
+    required this.getProvidersUseCase,
     required this.aggregate,
     required this.categoryAggregate,
+    required this.providerAggregate,
     this.attachmentPath,
   });
 
   @override
-  _IncomePageState createState() => _IncomePageState();
+  _EgressPageState createState() => _EgressPageState();
 }
 
-class _IncomePageState extends State<IncomePage> {
+class _EgressPageState extends State<EgressPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _providerController = TextEditingController();
   String? _selectedCategory;
-  String? _attachmentPath; // Define _attachmentPath en el estado del widget
+  String? _selectedProvider;
+  String? _attachmentPath;
 
   @override
   void initState() {
@@ -45,6 +56,7 @@ class _IncomePageState extends State<IncomePage> {
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _loadEntries();
     _loadCategories();
+    _loadProviders();
   }
 
   Future<void> _loadEntries() async {
@@ -63,19 +75,29 @@ class _IncomePageState extends State<IncomePage> {
     });
   }
 
+  Future<void> _loadProviders() async {
+    final providers = await widget.getProvidersUseCase.execute(widget.providerAggregate);
+    setState(() {
+      widget.providerAggregate.providers.clear();
+      widget.providerAggregate.providers.addAll(providers);
+    });
+  }
+
   void _addEntry() async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final category = _selectedCategory;
+    final provider = _selectedProvider;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
-      final entry = IncomeEntry(
+    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty && provider != null && provider.isNotEmpty) {
+      final entry = EgressEntry(
         description: description,
         amount: amount,
         date: date,
         category: category,
-        attachmentPath: _attachmentPath, // Añade attachmentPath al crear una nueva entrada
+        provider: provider,
+        attachmentPath: _attachmentPath,
       );
       await widget.createEntryUseCase.execute(widget.aggregate, entry);
       _loadEntries();
@@ -83,20 +105,22 @@ class _IncomePageState extends State<IncomePage> {
     }
   }
 
-  void _updateEntry(IncomeEntry entry) async {
+  void _updateEntry(EgressEntry entry) async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final category = _selectedCategory;
+    final provider = _selectedProvider;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
-      final updatedEntry = IncomeEntry(
+    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty && provider != null && provider.isNotEmpty) {
+      final updatedEntry = EgressEntry(
         id: entry.id,
         description: description,
         amount: amount,
         date: date,
         category: category,
-        attachmentPath: _attachmentPath, // Añade attachmentPath al actualizar una entrada
+        provider: provider,
+        attachmentPath: _attachmentPath,
       );
       await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
       _loadEntries();
@@ -108,17 +132,19 @@ class _IncomePageState extends State<IncomePage> {
     _descriptionController.clear();
     _amountController.clear();
     _selectedCategory = null;
+    _selectedProvider = null;
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    _attachmentPath = null; // Limpia el campo de adjunto
+    _attachmentPath = null;
   }
 
-  void _showEntryDialog({IncomeEntry? entry}) {
+  void _showEntryDialog({EgressEntry? entry}) {
     if (entry != null) {
       _descriptionController.text = entry.description;
       _amountController.text = entry.amount.toString();
       _selectedCategory = entry.category;
+      _selectedProvider = entry.provider;
       _dateController.text = DateFormat('yyyy-MM-dd').format(entry.date);
-      _attachmentPath = entry.attachmentPath; // Carga la ruta del adjunto existente
+      _attachmentPath = entry.attachmentPath;
     } else {
       _clearFields();
     }
@@ -127,7 +153,7 @@ class _IncomePageState extends State<IncomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Center(child: Text(entry == null ? 'Nuevo Ingreso' : 'Editar Ingreso')),
+          title: Center(child: Text(entry == null ? 'Nuevo Egreso' : 'Editar Egreso')),
           content: Container(
             width: MediaQuery.of(context).size.width * 0.8,
             child: SingleChildScrollView(
@@ -187,6 +213,24 @@ class _IncomePageState extends State<IncomePage> {
                     },
                   ),
                   SizedBox(height: 16.0),
+                  DropdownButtonFormField<String>(
+                    value: _selectedProvider,
+                    decoration: InputDecoration(
+                      labelText: 'Proveedor',
+                    ),
+                    items: widget.providerAggregate.providers.map((Provider provider) {
+                      return DropdownMenuItem<String>(
+                        value: provider.name,
+                        child: Text(provider.name),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedProvider = newValue;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: () async {
                       final result = await FilePicker.platform.pickFiles();
@@ -234,7 +278,7 @@ class _IncomePageState extends State<IncomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<IncomeEntry>>(
+      body: FutureBuilder<List<EgressEntry>>(
         future: widget.getEntriesUseCase.execute(widget.aggregate),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -242,7 +286,7 @@ class _IncomePageState extends State<IncomePage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No hay ingresos'));
+            return Center(child: Text('No hay egresos'));
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.length,
@@ -309,6 +353,10 @@ class _IncomePageState extends State<IncomePage> {
                               'Categoría: ${entry.category}',
                               style: TextStyle(fontSize: 16.0),
                             ),
+                            Text(
+                              'Proveedor: ${entry.provider}',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
                           ],
                         ),
                       ),
@@ -331,5 +379,4 @@ class _IncomePageState extends State<IncomePage> {
     );
   }
 }
-
 
