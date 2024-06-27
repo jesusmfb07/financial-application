@@ -5,7 +5,10 @@ import 'finances/infrastructure/adapters/egress_adapter.dart';
 import 'finances/infrastructure/adapters/income_adapter.dart';
 import 'finances/ui/myFinancesPages/my_finance_page.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // await EgressEntrySQLiteAdapter().deleteDatabase(); // Eliminar la base de datos para pruebas
   runApp(MyApp());
 }
 

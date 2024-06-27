@@ -27,14 +27,14 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
 
     return await openDatabase(
       path,
-      version: 4, // Incrementa la versión
+      version: 5, // Incrementa la versión
       onCreate: (db, version) async {
         print('Creating database version $version');
         await _createTable(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         print('Upgrading database from $oldVersion to $newVersion');
-        if (oldVersion < 4) {
+        if (oldVersion < 5) {
           await _createTable(db);
         }
       },
@@ -72,16 +72,33 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
       if (tableExists.isEmpty) {
         print('Table does not exist, attempting to create');
         await _createTable(db);
+      } else {
+        print('Unexpected error: $e');
+        throw e;
       }
     }
   }
 
   Future<List<EgressEntry>> getEntries() async {
     final db = await database;
-    final maps = await db.query('egress_entries');
-    return List.generate(maps.length, (i) {
-      return EgressEntryMapper.fromMap(maps[i]);
-    });
+    try {
+      final maps = await db.query('egress_entries');
+      return List.generate(maps.length, (i) {
+        return EgressEntryMapper.fromMap(maps[i]);
+      });
+    } catch (e) {
+      print('Error retrieving entries: $e');
+      // Verificar si la tabla existe
+      var tableExists = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='egress_entries'");
+      if (tableExists.isEmpty) {
+        print('Table does not exist, attempting to create');
+        await _createTable(db);
+        return [];
+      } else {
+        print('Unexpected error: $e');
+        throw e;
+      }
+    }
   }
 
   Future<void> updateEntry(EgressEntry entry) async {
@@ -93,4 +110,12 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
       whereArgs: [entry.id],
     );
   }
+
+  // Future<void> deleteDatabase() async {
+  //   final databasePath = await getDatabasesPath();
+  //   final path = join(databasePath, 'finance.db');
+  //   await databaseFactory.deleteDatabase(path);
+  //   print('Database deleted');
+  //   _database = null; // Reset database instance
+  // }
 }

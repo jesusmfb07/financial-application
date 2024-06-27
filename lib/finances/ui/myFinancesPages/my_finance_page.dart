@@ -23,9 +23,7 @@ import '../../domain/aggregates/income_aggregate.dart';
 import '../../infrastructure/adapters/egress_adapter.dart';
 import '../../infrastructure/adapters/income_adapter.dart';
 import 'egress/egress_page.dart';
-import 'egress_page.dart';
 import 'income/income_page.dart';
-import 'income_page.dart';
 
 class MyFinancesPage extends StatefulWidget {
   @override
@@ -34,6 +32,7 @@ class MyFinancesPage extends StatefulWidget {
 
 class _MyFinancesPageState extends State<MyFinancesPage> {
   int _selectedIndex = 0;
+  int _selectedFinanceTabIndex = 0; // For Income (0) and Egress (1)
 
   late IncomeEntryAggregate incomeAggregate;
   late EgressEntryAggregate egressAggregate;
@@ -95,6 +94,12 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
     });
   }
 
+  void _onFinanceTabTapped(int index) {
+    setState(() {
+      _selectedFinanceTabIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,17 +125,17 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
                 ),
               ],
               isSelected: [
-                _selectedIndex == 0,
-                _selectedIndex == 1,
+                _selectedFinanceTabIndex == 0,
+                _selectedFinanceTabIndex == 1,
               ],
               onPressed: (index) {
-                _onItemTapped(index);
+                _onFinanceTabTapped(index);
               },
             ),
           ),
         ),
       ),
-      body: _selectedIndex == 0
+      body: _selectedFinanceTabIndex == 0
           ? IncomePage(
         createEntryUseCase: createIncomeEntryUseCase,
         updateEntryUseCase: updateIncomeEntryUseCase,

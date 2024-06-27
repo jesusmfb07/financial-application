@@ -3,7 +3,6 @@ import '../../register/ui/myRegister/register_page.dart';
 import '../../chat/ui/pages/expense_manager_page.dart';
 import '../../settings/ui/mySettings/settings_page.dart';
 
-
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
