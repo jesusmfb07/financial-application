@@ -22,7 +22,9 @@ import '../../domain/aggregates/egress_aggregate.dart';
 import '../../domain/aggregates/income_aggregate.dart';
 import '../../infrastructure/adapters/egress_adapter.dart';
 import '../../infrastructure/adapters/income_adapter.dart';
+import 'egress/egress_page.dart';
 import 'egress_page.dart';
+import 'income/income_page.dart';
 import 'income_page.dart';
 
 class MyFinancesPage extends StatefulWidget {

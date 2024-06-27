@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../../../domain/entities/egress_entry_entity.dart';
+import '../../income/widgets/attachment_viewer.dart';
+
+
+class EntryTile extends StatelessWidget {
+  final EgressEntry entry;
+  final Function(EgressEntry) onEdit;
+  final Function(String) onViewAttachment;
+
+  EntryTile({
+    required this.entry,
+    required this.onEdit,
+    required this.onViewAttachment,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4.0,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Fecha: ${DateFormat('yyyy-MM-dd').format(entry.date)}',
+            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            'Monto: \$${entry.amount.toStringAsFixed(2)}',
+            style: TextStyle(fontSize: 16.0),
+          ),
+          Text(
+            'Descripción: ${entry.description}',
+            style: TextStyle(fontSize: 16.0),
+          ),
+          Text(
+            'Categoría: ${entry.category}',
+            style: TextStyle(fontSize: 16.0),
+          ),
+          Text(
+            'Proveedor: ${entry.provider}',
+            style: TextStyle(fontSize: 16.0),
+          ),
+          SizedBox(height: 16.0),
+          if (entry.attachmentPath != null)
+            AttachmentViewer(attachmentPath: entry.attachmentPath),
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () => onEdit(entry),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
