@@ -1,4 +1,5 @@
 import 'dart:io'; // Importa dart:io para usar la clase File
+import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -39,7 +40,7 @@ class _IncomePageState extends State<IncomePage> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   String? _selectedCategory;
-  String? _attachmentPath; // Define _attachmentPath en el estado del widget
+  String? _attachmentPath;
 
   @override
   void initState() {
@@ -65,6 +66,14 @@ class _IncomePageState extends State<IncomePage> {
     });
   }
 
+  Future<String> _saveFileLocally(String filePath) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName = filePath.split('/').last;
+    final localPath = '${directory.path}/$fileName';
+    final localFile = await File(filePath).copy(localPath);
+    return localFile.path;
+  }
+
   void _addEntry() async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
@@ -72,12 +81,13 @@ class _IncomePageState extends State<IncomePage> {
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
     if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
+      final attachmentPath = _attachmentPath != null ? await _saveFileLocally(_attachmentPath!) : null;
       final entry = IncomeEntry(
         description: description,
         amount: amount,
         date: date,
         category: category,
-        attachmentPath: _attachmentPath, // Añade attachmentPath al crear una nueva entrada
+        attachmentPath: attachmentPath,
       );
       await widget.createEntryUseCase.execute(widget.aggregate, entry);
       _loadEntries();
@@ -92,13 +102,14 @@ class _IncomePageState extends State<IncomePage> {
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
     if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
+      final attachmentPath = _attachmentPath != null ? await _saveFileLocally(_attachmentPath!) : entry.attachmentPath;
       final updatedEntry = IncomeEntry(
         id: entry.id,
         description: description,
         amount: amount,
         date: date,
         category: category,
-        attachmentPath: _attachmentPath, // Añade attachmentPath al actualizar una entrada
+        attachmentPath: attachmentPath,
       );
       await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
       _loadEntries();
@@ -111,7 +122,7 @@ class _IncomePageState extends State<IncomePage> {
     _amountController.clear();
     _selectedCategory = null;
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    _attachmentPath = null; // Limpia el campo de adjunto
+    _attachmentPath = null;
   }
 
   void _showEntryDialog({IncomeEntry? entry}) {
@@ -120,7 +131,7 @@ class _IncomePageState extends State<IncomePage> {
       _amountController.text = entry.amount.toString();
       _selectedCategory = entry.category;
       _dateController.text = DateFormat('yyyy-MM-dd').format(entry.date);
-      _attachmentPath = entry.attachmentPath; // Carga la ruta del adjunto existente
+      _attachmentPath = entry.attachmentPath;
     } else {
       _clearFields();
     }
@@ -251,7 +262,6 @@ class _IncomePageState extends State<IncomePage> {
         ),
       );
     } else {
-      // Abre el documento con cualquier otra aplicación
       OpenFile.open(path);
     }
   }
@@ -315,11 +325,22 @@ class _IncomePageState extends State<IncomePage> {
                             height: 100,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8.0),
-                              image: DecorationImage(
+                              image: entry.attachmentPath!.toLowerCase().endsWith('.pdf')
+                                  ? null
+                                  : DecorationImage(
                                 fit: BoxFit.cover,
                                 image: FileImage(File(entry.attachmentPath!)),
                               ),
                             ),
+                            child: entry.attachmentPath!.toLowerCase().endsWith('.pdf')
+                                ? Center(
+                              child: Icon(
+                                Icons.picture_as_pdf,
+                                size: 50,
+                                color: Colors.red,
+                              ),
+                            )
+                                : null,
                           ),
                         )
                       else
