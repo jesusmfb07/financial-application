@@ -1,8 +1,8 @@
 class Provider {
   final String id;
   final String name;
-  final int? phoneNumber;
-  final int? ruc;
+  final String? phoneNumber;
+  final String? ruc;
 
   Provider({
     required this.id,

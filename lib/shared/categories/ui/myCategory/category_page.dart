@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../ui/navigation_bar_page.dart';
 import '../../application/use_cases/category_use_case.dart';
 import '../../domain/aggregates/category_aggregate.dart';
 import '../../domain/entities/category_entity.dart';
@@ -45,13 +46,16 @@ class _CategoryPageState extends State<CategoryPage> {
     if (_categoryController.text.isEmpty) return;
 
     final category = Category(
-        id: id ?? DateTime.now().toString(),
-        name: _categoryController.text);
+      id: id ?? DateTime.now().toString(),
+      name: _categoryController.text,
+    );
+
     if (id == null) {
       await widget.createCategoryUseCase.execute(widget.aggregate, category);
     } else {
       await widget.updateCategoryUseCase.execute(widget.aggregate, category);
     }
+
     _categoryController.clear();
     _loadCategories();
   }
@@ -94,6 +98,12 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +121,10 @@ class _CategoryPageState extends State<CategoryPage> {
               children: [
                 IconButton(
                   icon: Icon(Icons.edit),
-                  onPressed: () => _showAddCategoryDialog(id: category.id, initialName: category.name),
+                  onPressed: () => _showAddCategoryDialog(
+                    id: category.id,
+                    initialName: category.name,
+                  ),
                 ),
                 IconButton(
                   icon: Icon(Icons.delete),
@@ -121,7 +134,10 @@ class _CategoryPageState extends State<CategoryPage> {
             ),
             onTap: () {
               _categoryController.text = category.name;
-              _showAddCategoryDialog(id: category.id, initialName: category.name);
+              _showAddCategoryDialog(
+                id: category.id,
+                initialName: category.name,
+              );
             },
           );
         },
@@ -129,6 +145,10 @@ class _CategoryPageState extends State<CategoryPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddCategoryDialog(),
         child: Icon(Icons.add),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }

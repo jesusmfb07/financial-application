@@ -33,8 +33,8 @@ class ProviderSQLiteAdapter implements ProviderPort {
           CREATE TABLE providers (
             id TEXT PRIMARY KEY,
             name TEXT,
-            phoneNumber INTEGER,
-            ruc INTEGER
+            phoneNumber TEXT,
+            ruc TEXT
           )
         ''');
       },

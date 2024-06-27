@@ -5,8 +5,8 @@ class ProviderMapper {
     return {
       'id': provider.id,
       'name': provider.name,
-      'phoneNumber': provider.phoneNumber?.toString(),
-      'ruc': provider.ruc?.toString(),
+      'phoneNumber': provider.phoneNumber,
+      'ruc': provider.ruc,
     };
   }
 
@@ -14,8 +14,8 @@ class ProviderMapper {
     return Provider(
       id: map['id'],
       name: map['name'],
-      phoneNumber: map['phoneNumber'] != null ? int.tryParse(map['phoneNumber']) : null,
-      ruc: map['ruc'] != null ? int.tryParse(map['ruc']) : null,
+      phoneNumber: map['phoneNumber'],
+      ruc: map['ruc'],
     );
   }
 }
