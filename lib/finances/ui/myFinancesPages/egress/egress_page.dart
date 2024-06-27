@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import '../../../../shared/categories/application/use_cases/category_use_case.dart';
@@ -7,10 +8,12 @@ import '../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
 import '../../../application/use_cases/egress_use_case.dart';
 import '../../../domain/aggregates/egress_aggregate.dart';
 import '../../../domain/entities/egress_entry_entity.dart';
+import '../file_storage_service.dart';
 import 'egress_entry_form.dart';
 import 'egress_entry_list.dart';
 import 'image_preview_page.dart';
 import 'pdf_viewer_page.dart';
+
 
 class EgressPage extends StatefulWidget {
   final CreateEgressEntryUseCase createEntryUseCase;
@@ -40,6 +43,8 @@ class EgressPage extends StatefulWidget {
 }
 
 class _EgressPageState extends State<EgressPage> {
+  final FileStorageService _fileStorageService = FileStorageService();
+
   @override
   void initState() {
     super.initState();
@@ -72,21 +77,9 @@ class _EgressPageState extends State<EgressPage> {
     });
   }
 
-  void _showEntryDialog({EgressEntry? entry}) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return EgressEntryForm(
-          createEntryUseCase: widget.createEntryUseCase,
-          updateEntryUseCase: widget.updateEntryUseCase,
-          aggregate: widget.aggregate,
-          categoryAggregate: widget.categoryAggregate,
-          providerAggregate: widget.providerAggregate,
-          entry: entry,
-          onSave: _loadEntries,
-        );
-      },
-    );
+  Future<void> _saveAttachment(File file) async {
+    final savedFile = await _fileStorageService.saveFile(file);
+    // Actualiza tu lógica para usar la ruta del archivo guardado.
   }
 
   void _viewAttachment(String path) {
@@ -124,6 +117,23 @@ class _EgressPageState extends State<EgressPage> {
         onPressed: () => _showEntryDialog(),
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showEntryDialog({EgressEntry? entry}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EgressEntryForm(
+          createEntryUseCase: widget.createEntryUseCase,
+          updateEntryUseCase: widget.updateEntryUseCase,
+          aggregate: widget.aggregate,
+          categoryAggregate: widget.categoryAggregate,
+          providerAggregate: widget.providerAggregate,
+          entry: entry,
+          onSave: _loadEntries,
+        );
+      },
     );
   }
 }

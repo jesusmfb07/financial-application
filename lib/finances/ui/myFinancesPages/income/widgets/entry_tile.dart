@@ -33,9 +33,18 @@ class EntryTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Fecha: ${DateFormat('yyyy-MM-dd').format(entry.date)}',
-            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Fecha: ${DateFormat('yyyy-MM-dd').format(entry.date)}',
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () => onEdit(entry),
+              ),
+            ],
           ),
           Text(
             'Monto: \$${entry.amount.toStringAsFixed(2)}',
@@ -51,14 +60,6 @@ class EntryTile extends StatelessWidget {
           ),
           SizedBox(height: 16.0),
           AttachmentViewer(attachmentPath: entry.attachmentPath),
-          Align(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () => onEdit(entry)
-
-            ),
-          ),
         ],
       ),
     );

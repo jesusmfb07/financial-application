@@ -4,7 +4,7 @@ import 'package:open_file/open_file.dart';
 
 import '../../egress/image_preview_page.dart';
 import '../../egress/pdf_viewer_page.dart';
-import '../../egress_page.dart';
+
 
 class AttachmentViewer extends StatelessWidget {
   final String? attachmentPath;

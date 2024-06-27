@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import '../../../application/use_cases/income_use_case.dart';
@@ -5,6 +6,7 @@ import '../../../domain/aggregates/income_aggregate.dart';
 import '../../../domain/entities/income_entry_entity.dart';
 import '../egress/image_preview_page.dart';
 import '../egress/pdf_viewer_page.dart';
+import '../file_storage_service.dart';
 import 'income_entry_form.dart';
 import 'income_entry_list.dart';
 import '../../../../shared/categories/application/use_cases/category_use_case.dart';
@@ -35,6 +37,8 @@ class IncomePage extends StatefulWidget {
 }
 
 class _IncomePageState extends State<IncomePage> {
+  final FileStorageService _fileStorageService = FileStorageService();
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +61,12 @@ class _IncomePageState extends State<IncomePage> {
       widget.categoryAggregate.categories.addAll(categories);
     });
   }
+
+  Future<void> _saveAttachment(File file) async {
+    final savedFile = await _fileStorageService.saveFile(file);
+    // Actualiza tu lógica para usar la ruta del archivo guardado.
+  }
+
   void _viewAttachment(String path) {
     if (path.toLowerCase().endsWith('.jpg') ||
         path.toLowerCase().endsWith('.jpeg') ||
@@ -78,6 +88,7 @@ class _IncomePageState extends State<IncomePage> {
       OpenFile.open(path);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,4 +121,3 @@ class _IncomePageState extends State<IncomePage> {
     );
   }
 }
-
