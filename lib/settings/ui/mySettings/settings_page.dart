@@ -1,3 +1,4 @@
+import 'package:exercises_flutter2/shared/currencies/domain/aggregates/currency_aggregate.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../chat/ui/pages/expense_manager_page.dart';
@@ -8,6 +9,11 @@ import '../../../shared/categories/application/use_cases/handler/queries/get_cat
 import '../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../shared/categories/infrastructure/adapters/category_sqlite_adapter.dart';
 import '../../../shared/categories/ui/myCategory/category_page.dart';
+import '../../../shared/currencies/application/use_cases/handler/command/set_currency_command.dart';
+import '../../../shared/currencies/application/use_cases/handler/queries/get_currency_query.dart';
+import '../../../shared/currencies/application/use_cases/handler/queries/get_default_currency_query.dart';
+import '../../../shared/currencies/infrastructure/adapters/currency_adapter.dart';
+import '../../../shared/currencies/ui/currency_page.dart';
 import '../../../shared/providers/application/use_cases/handler/command/create_provider_command.dart';
 import '../../../shared/providers/application/use_cases/handler/command/delete_provider_command.dart';
 import '../../../shared/providers/application/use_cases/handler/command/update_provider_command.dart';
@@ -33,12 +39,20 @@ class SettingsPage extends StatelessWidget {
     final deleteProviderUseCase = DeleteProviderCommand(providerAdapter);
     final getProvidersUseCase = GetProvidersQuery(providerAdapter);
 
+
     final CategorySQLiteAdapter categoryAdapter = CategorySQLiteAdapter();
     final CategoryAggregate categoryAggregate = CategoryAggregate(categories: []);
     final createCategoryUseCase = CreateCategoryCommand(categoryAdapter);
     final updateCategoryUseCase = UpdateCategoryCommand(categoryAdapter);
     final deleteCategoryUseCase = DeleteCategoryCommand(categoryAdapter);
     final getCategoriesUseCase = GetCategoriesQuery(categoryAdapter);
+
+    final CurrencySQLiteAdapter currencyAdapter = CurrencySQLiteAdapter();
+    final CurrencyAggregate currencyAggregate = CurrencyAggregate(currencies: []);
+    final getCurrenciesUseCase = GetCurrenciesQuery(currencyAdapter);
+    final getDefaultCurrencyUseCase = GetDefaultCurrencyQuery(currencyAdapter);
+    final setDefaultCurrencyUseCase = SetDefaultCurrencyCommand(currencyAdapter);
+
 
     void _onItemTapped(int index) {
       if (index == 0) {
@@ -152,10 +166,20 @@ class SettingsPage extends StatelessWidget {
                   ),
                   ListTile(
                     leading: Icon(Icons.attach_money),
-                    title: Text('Moneda por defecto'),
+                    title: Text('Monedas'),
                     trailing: Icon(Icons.chevron_right),
-                    onTap: () async {
-                      // Implementación para Moneda por defecto
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CurrencyPage(
+                            getCurrenciesUseCase: getCurrenciesUseCase,
+                            getDefaultCurrencyUseCase: getDefaultCurrencyUseCase,
+                            setDefaultCurrencyUseCase: setDefaultCurrencyUseCase,
+                            aggregate: currencyAggregate,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ],

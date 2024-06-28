@@ -6,7 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../../../shared/categories/application/use_cases/category_use_case.dart';
 import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../../shared/categories/domain/entities/category_entity.dart';
 import '../../../application/use_cases/income_use_case.dart';
@@ -18,6 +20,7 @@ class IncomeEntryForm extends StatefulWidget {
   final UpdateIncomeEntryUseCase updateEntryUseCase;
   final IncomeEntryAggregate aggregate;
   final CategoryAggregate categoryAggregate;
+  final CreateCategoryUseCase createCategoryUseCase;
   final IncomeEntry? entry;
   final VoidCallback onSave;
 
@@ -26,6 +29,7 @@ class IncomeEntryForm extends StatefulWidget {
     required this.updateEntryUseCase,
     required this.aggregate,
     required this.categoryAggregate,
+    required this.createCategoryUseCase,
     this.entry,
     required this.onSave,
   });
@@ -38,7 +42,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  String? _selectedCategory;
+  final TextEditingController _categoryController = TextEditingController();
   String? _attachmentPath;
 
   @override
@@ -48,10 +52,10 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     if (widget.entry != null) {
       _descriptionController.text = widget.entry!.description;
       _amountController.text = widget.entry!.amount.toString();
-      _selectedCategory = widget.entry!.category;
+      _categoryController.text = widget.entry!.category;
       _dateController.text = DateFormat('yyyy-MM-dd').format(widget.entry!.date);
       _attachmentPath = widget.entry!.attachmentPath;
-    }else {
+    } else {
       _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     }
   }
@@ -67,10 +71,10 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   void _addEntry() async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final category = _selectedCategory;
+    final category = _categoryController.text;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
+    if (description.isNotEmpty && amount > 0 && category.isNotEmpty) {
       final attachmentPath = _attachmentPath != null ? await _saveFileLocally(_attachmentPath!) : null;
       final entry = IncomeEntry(
         description: description,
@@ -88,10 +92,10 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   void _updateEntry() async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final category = _selectedCategory;
+    final category = _categoryController.text;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
-    if (description.isNotEmpty && amount > 0 && category != null && category.isNotEmpty) {
+    if (description.isNotEmpty && amount > 0 && category.isNotEmpty) {
       final attachmentPath = _attachmentPath != null ? await _saveFileLocally(_attachmentPath!) : widget.entry!.attachmentPath;
       final updatedEntry = IncomeEntry(
         id: widget.entry!.id,
@@ -105,6 +109,50 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
       widget.onSave();
       Navigator.pop(context);
     }
+  }
+
+  void _createCategory(String name) async {
+    final newCategory = Category(
+      id: Uuid().v4(), // Genera un ID único para la nueva categoría
+      name: name,
+    );
+    await widget.createCategoryUseCase.execute(widget.categoryAggregate, newCategory);
+
+    setState(() {
+      widget.categoryAggregate.categories.add(newCategory);
+      _categoryController.text = newCategory.name;
+    });
+  }
+
+  void _showCreateCategoryDialog() {
+    TextEditingController _newCategoryController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Crear Categoría'),
+          content: TextField(
+            controller: _newCategoryController,
+            decoration: InputDecoration(labelText: 'Nombre de la categoría'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                _createCategory(_newCategoryController.text);
+                Navigator.pop(context);
+              },
+              child: Text('Crear'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -150,19 +198,36 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
               decoration: InputDecoration(labelText: 'Descripción'),
             ),
             SizedBox(height: 16.0),
-            DropdownButtonFormField<String>(
-              value: _selectedCategory,
-              decoration: InputDecoration(labelText: 'Categoría'),
-              items: widget.categoryAggregate.categories.map((Category category) {
-                return DropdownMenuItem<String>(
-                  value: category.name,
-                  child: Text(category.name),
+            Autocomplete<String>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text.isEmpty) {
+                  return const Iterable<String>.empty();
+                }
+                return widget.categoryAggregate.categories
+                    .where((Category category) => category.name
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()))
+                    .map((Category category) => category.name);
+              },
+              onSelected: (String selection) {
+                _categoryController.text = selection;
+              },
+              fieldViewBuilder: (BuildContext context,
+                  TextEditingController textEditingController,
+                  FocusNode focusNode,
+                  VoidCallback onFieldSubmitted) {
+                textEditingController.text = _categoryController.text; // Actualiza el texto del campo
+                return TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    labelText: 'Categoría',
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: _showCreateCategoryDialog,
+                    ),
+                  ),
                 );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  _selectedCategory = newValue;
-                });
               },
             ),
             SizedBox(height: 16.0),

@@ -5,7 +5,6 @@ import 'package:open_file/open_file.dart';
 import '../../egress/image_preview_page.dart';
 import '../../egress/pdf_viewer_page.dart';
 
-
 class AttachmentViewer extends StatelessWidget {
   final String? attachmentPath;
 
@@ -14,15 +13,7 @@ class AttachmentViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (attachmentPath == null) {
-      return Container(
-        width: double.infinity,
-        height: 100,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Icon(Icons.insert_drive_file, color: Colors.grey[600]),
-      );
+      return Container(); // No se muestra nada si no hay archivo adjunto
     }
 
     if (attachmentPath!.toLowerCase().endsWith('.jpg') ||
@@ -73,7 +64,7 @@ class AttachmentViewer extends StatelessWidget {
       );
     } else {
       return GestureDetector(
-        onTap: () => OpenFile.open(attachmentPath),
+        onTap: () => OpenFile.open(attachmentPath!),
         child: Container(
           width: double.infinity,
           height: 100,

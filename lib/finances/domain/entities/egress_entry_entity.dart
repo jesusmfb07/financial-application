@@ -3,8 +3,8 @@ class EgressEntry {
   final String description;
   final double amount;
   final DateTime date;
-  final String category;
-  final String provider;
+  final String? category;
+  final String? provider;
   final String? attachmentPath;
 
   EgressEntry({

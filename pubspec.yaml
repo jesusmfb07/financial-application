@@ -24,6 +24,7 @@ dependencies:
   flutter_cached_pdfview: ^0.4.2
   chakre_pdf_viewer: ^1.1.0
   pdf_render: ^1.4.10
+  uuid: 4.4.0
 
 dev_dependencies:
   flutter_test:
