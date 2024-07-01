@@ -27,7 +27,7 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
 
     return await openDatabase(
       path,
-      version: 5, // Incrementa la versión
+      version: 6, // Incrementa la versión
       onCreate: (db, version) async {
         print('Creating database version $version');
         await _createTable(db);
@@ -51,7 +51,8 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
         date TEXT,
         category TEXT,
         provider TEXT,
-        attachmentPath TEXT
+        attachmentPath TEXT,
+        currencySymbol TEXT,
       )
     ''');
       print('Table egress_entries created successfully');
@@ -111,11 +112,11 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
     );
   }
 
-  // Future<void> deleteDatabase() async {
-  //   final databasePath = await getDatabasesPath();
-  //   final path = join(databasePath, 'finance.db');
-  //   await databaseFactory.deleteDatabase(path);
-  //   print('Database deleted');
-  //   _database = null; // Reset database instance
-  // }
+  Future<void> deleteDatabase() async {
+    final databasePath = await getDatabasesPath();
+    final path = join(databasePath, 'finance.db');
+    await databaseFactory.deleteDatabase(path);
+    print('Database deleted');
+    _database = null; // Reset database instance
+  }
 }

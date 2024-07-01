@@ -170,16 +170,18 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
     }
   }
 
-  void _createProvider(String name) async {
+  void _createProvider(String name, {String? phoneNumber, String? ruc}) async {
     final existingProvider = widget.providerAggregate.providers.firstWhere(
-      (provider) => provider.name == name,
-      orElse: () => Provider(id: '', name: ''),
+          (provider) => provider.name == name,
+      orElse: () => Provider(id: '', name: '', phoneNumber: null, ruc: null),
     );
 
     if (existingProvider.id.isEmpty) {
       final newProvider = Provider(
         id: Uuid().v4(),
         name: name,
+        phoneNumber: phoneNumber,
+        ruc: ruc,
       );
       await widget.createProviderUseCase
           .execute(widget.providerAggregate, newProvider);
@@ -228,14 +230,32 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
 
   void _showCreateProviderDialog() {
     TextEditingController _newProviderController = TextEditingController();
+    TextEditingController _phoneNumberController = TextEditingController();
+    TextEditingController _rucController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text('Crear Proveedor'),
-          content: TextField(
-            controller: _newProviderController,
-            decoration: InputDecoration(labelText: 'Nombre del proveedor'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _newProviderController,
+                  decoration: InputDecoration(labelText: 'Nombre del proveedor'),
+                ),
+                TextField(
+                  controller: _phoneNumberController,
+                  decoration: InputDecoration(labelText: 'Teléfono'),
+                ),
+                TextField(
+                  controller: _rucController,
+                  decoration: InputDecoration(labelText: 'RUC'),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -246,7 +266,11 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
             ),
             TextButton(
               onPressed: () {
-                _createProvider(_newProviderController.text);
+                _createProvider(
+                  _newProviderController.text,
+                  phoneNumber: _phoneNumberController.text,
+                  ruc: _rucController.text,
+                );
                 Navigator.pop(context);
               },
               child: Text('Crear'),

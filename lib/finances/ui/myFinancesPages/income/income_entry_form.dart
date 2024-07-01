@@ -238,6 +238,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
                 ),
               ),
             ),
+            SizedBox(height: 16.0),
             TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,
