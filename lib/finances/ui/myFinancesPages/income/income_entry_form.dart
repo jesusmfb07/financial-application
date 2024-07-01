@@ -264,10 +264,12 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
                 ),
               ),
             ),
+            SizedBox(height: 16.0),
             TextField(
               controller: _descriptionController,
               decoration: InputDecoration(labelText: 'Descripción'),
             ),
+            SizedBox(height: 16.0),
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
                 if (textEditingValue.text.isEmpty) {

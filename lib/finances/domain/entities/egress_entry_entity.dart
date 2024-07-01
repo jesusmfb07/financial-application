@@ -6,6 +6,7 @@ class EgressEntry {
   final String? category;
   final String? provider;
   final String? attachmentPath;
+  final String currencySymbol;
 
   EgressEntry({
     this.id,
@@ -15,5 +16,6 @@ class EgressEntry {
     required this.category,
     required this.provider,
     this.attachmentPath,
+    required this.currencySymbol,
   });
 }

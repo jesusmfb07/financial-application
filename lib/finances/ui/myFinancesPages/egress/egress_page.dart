@@ -14,28 +14,33 @@ import 'egress_entry_list.dart';
 import 'image_preview_page.dart';
 import 'pdf_viewer_page.dart';
 
-
 class EgressPage extends StatefulWidget {
   final CreateEgressEntryUseCase createEntryUseCase;
   final UpdateEgressEntryUseCase updateEntryUseCase;
   final GetEgressEntriesUseCase getEntriesUseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
+  final CreateCategoryUseCase createCategoryUseCase;
   final GetProvidersUseCase getProvidersUseCase;
+  final CreateProviderUseCase createProviderUseCase;
   final EgressEntryAggregate aggregate;
   final CategoryAggregate categoryAggregate;
   final ProviderAggregate providerAggregate;
   final String? attachmentPath;
+  final String defaultCurrencySymbol;
 
   EgressPage({
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
     required this.getEntriesUseCase,
     required this.getCategoriesUseCase,
+    required this.createCategoryUseCase,
     required this.getProvidersUseCase,
+    required this.createProviderUseCase,
     required this.aggregate,
     required this.categoryAggregate,
     required this.providerAggregate,
     this.attachmentPath,
+    this.defaultCurrencySymbol = '\$',
   });
 
   @override
@@ -129,12 +134,14 @@ class _EgressPageState extends State<EgressPage> {
           updateEntryUseCase: widget.updateEntryUseCase,
           aggregate: widget.aggregate,
           categoryAggregate: widget.categoryAggregate,
+          createCategoryUseCase: widget.createCategoryUseCase,
           providerAggregate: widget.providerAggregate,
+          createProviderUseCase: widget.createProviderUseCase,
           entry: entry,
           onSave: _loadEntries,
+          defaultCurrencySymbol: widget.defaultCurrencySymbol,
         );
       },
     );
   }
 }
-

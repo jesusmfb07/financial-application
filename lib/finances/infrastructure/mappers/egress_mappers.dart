@@ -10,6 +10,7 @@ class EgressEntryMapper {
       'category': entry.category,
       'provider': entry.provider,
       'attachmentPath': entry.attachmentPath, // Incluye attachmentPath aquí
+      'currencySymbol': entry.currencySymbol,
     };
   }
 
@@ -22,6 +23,7 @@ class EgressEntryMapper {
       category: map['category'],
       provider: map['provider'],
       attachmentPath: map['attachmentPath'], // Recupera attachmentPath aquí
+      currencySymbol: map['currencySymbol'],
     );
   }
 }

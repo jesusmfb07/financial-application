@@ -9,6 +9,7 @@ import '../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
 import '../../../../shared/providers/infrastructure/adapters/provider_database_adapter.dart';
 import '../../../../shared/ui/navigation_bar_page.dart';
 import '../../../shared/categories/application/use_cases/handler/command/create_category_command.dart';
+import '../../../shared/providers/application/use_cases/handler/command/create_provider_command.dart';
 import '../../application/ports/egress_port.dart';
 import '../../application/ports/income_port.dart';
 import '../../application/use_cases/egress_use_case.dart';
@@ -50,6 +51,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
   late GetCategoriesUseCase getCategoriesUseCase;
   late GetProvidersUseCase getProvidersUseCase;
   late CreateCategoryUseCase createCategoryUseCase; // Añadir esto
+  late CreateProviderUseCase createProviderUseCase;
 
   @override
   void initState() {
@@ -73,6 +75,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
     getCategoriesUseCase = GetCategoriesQuery(CategorySQLiteAdapter());
     getProvidersUseCase = GetProvidersQuery(ProviderSQLiteAdapter());
     createCategoryUseCase = CreateCategoryCommand(CategorySQLiteAdapter()); // Inicializar esto
+    createProviderUseCase = CreateProviderCommand(ProviderSQLiteAdapter()); // Inicializar esto
 
     _loadInitialData();
   }
@@ -154,6 +157,8 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
         getEntriesUseCase: getEgressEntriesUseCase,
         getCategoriesUseCase: getCategoriesUseCase,
         getProvidersUseCase: getProvidersUseCase,
+        createCategoryUseCase: createCategoryUseCase,
+        createProviderUseCase: createProviderUseCase,
         aggregate: egressAggregate,
         categoryAggregate: categoryAggregate,
         providerAggregate: providerAggregate,
