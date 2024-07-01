@@ -1,5 +1,5 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../application/ports/income_port.dart';
 import '../../domain/entities/income_entry_entity.dart';
@@ -27,7 +27,7 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5, // Increment the version to force the upgrade
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE income_entries (
@@ -36,9 +36,25 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
             amount REAL,
             date TEXT,
             category TEXT,
-            attachmentPath TEXT
+            attachmentPath TEXT,
+            currencySymbol TEXT
           )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 5) {
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS income_entries (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              description TEXT,
+              amount REAL,
+              date TEXT,
+              category TEXT,
+              attachmentPath TEXT,
+              currencySymbol TEXT
+            )
+          ''');
+        }
       },
     );
   }
@@ -65,11 +81,10 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
       whereArgs: [entry.id],
     );
   }
-
-  // Future<void> closeDatabase() async {
-  //   if (_database != null) {
-  //     await _database!.close();
-  //     _database = null;
-  //   }
-  // }
+  Future<void> deleteDatabase() async {
+    final databasePath = await getDatabasesPath();
+    final path = join(databasePath, 'finance.db');
+    await databaseFactory.deleteDatabase(path);
+    _database = null; // Reset database instance
+  }
 }

@@ -23,6 +23,7 @@ class IncomePage extends StatefulWidget {
   final IncomeEntryAggregate aggregate;
   final CategoryAggregate categoryAggregate;
   final String? attachmentPath;
+  final String defaultCurrencySymbol; // Añadir propiedad para el símbolo de moneda
 
   IncomePage({
     required this.createEntryUseCase,
@@ -33,6 +34,7 @@ class IncomePage extends StatefulWidget {
     required this.aggregate,
     required this.categoryAggregate,
     this.attachmentPath,
+    this.defaultCurrencySymbol = '\$', // Valor predeterminado o especificar el símbolo adecuado
   });
 
   @override
@@ -143,9 +145,10 @@ class _IncomePageState extends State<IncomePage> {
           updateEntryUseCase: widget.updateEntryUseCase,
           aggregate: widget.aggregate,
           categoryAggregate: widget.categoryAggregate,
-          createCategoryUseCase: widget.createCategoryUseCase, // Añadir esto
+          createCategoryUseCase: widget.createCategoryUseCase,
           entry: entry,
           onSave: _loadEntries,
+          defaultCurrencySymbol: widget.defaultCurrencySymbol, // Añadir este argumento
         );
       },
     );

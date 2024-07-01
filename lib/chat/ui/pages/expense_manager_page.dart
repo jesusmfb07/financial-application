@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../../shared/ui/navigation_bar_page.dart';
 import '../../domain/entities/group_entity.dart';
@@ -9,101 +8,99 @@ import '../widgets/my_finances.dart';
 import 'new_group_page.dart';
 import 'contact_list_page.dart';
 
+class ExpenseManagerPage extends StatefulWidget {
+  @override
+  _ExpenseManagerPageState createState() => _ExpenseManagerPageState();
+}
 
-  class ExpenseManagerPage extends StatefulWidget {
-    @override
-    _ExpenseManagerPageState createState() => _ExpenseManagerPageState();
+class _ExpenseManagerPageState extends State<ExpenseManagerPage> {
+  final _groupPort = GroupAdapter();
+  late final _getGroups = GetGroups(_groupPort);
+  List<Group> _groups = [];
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGroups();
   }
 
-  class _ExpenseManagerPageState extends State<ExpenseManagerPage> {
-    final _groupPort = GroupAdapter();
-    late final _getGroups = GetGroups(_groupPort);
-    List<Group> _groups = [];
-    int _selectedIndex = 0;
+  Future<void> _loadGroups() async {
+    _groups = await _getGroups.execute();
+    setState(() {});
+  }
 
-    @override
-    void initState() {
-      super.initState();
-      _loadGroups();
-    }
-
-    Future<void> _loadGroups() async {
-      _groups = await _getGroups.execute();
-      setState(() {});
-    }
-
-    void _onMenuSelected(String value) {
-      switch (value) {
-        case 'addGroup':
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NewGroupPage()),
-          );
-          break;
-        case 'addContact':
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ContactListPage()),
-          );
-          break;
-      }
-    }
-
-    void _onItemTapped(int index) {
-      if (index == 0) {
+  void _onMenuSelected(String value) {
+    switch (value) {
+      case 'addGroup':
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ExpenseManagerPage()),
+          MaterialPageRoute(builder: (context) => NewGroupPage()),
         );
-      } else {
-        setState(() {
-          _selectedIndex = index;
-        });
-      }
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Gestor de Gastos'),
-          actions: [
-            PopupMenuButton<String>(
-              onSelected: _onMenuSelected,
-              itemBuilder: (BuildContext context) {
-                return [
-                  PopupMenuItem<String>(
-                    value: 'addGroup',
-                    child: Text('Añadir grupo'),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'addContact',
-                    child: Text('Añadir contacto'),
-                  ),
-                ];
-              },
-            ),
-          ],
-        ),
-        body: Column(
-          children: [
-            MyFinancesTile(),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _groups.length,
-                itemBuilder: (context, index) {
-                  return GroupTile(group: _groups[index]);
-                },
-              ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-        ),
-      );
+        break;
+      case 'addContact':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ContactListPage()),
+        );
+        break;
     }
   }
 
+  void _onItemTapped(int index) {
+    if (index == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ExpenseManagerPage()),
+      );
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Gestor de Gastos'),
+        automaticallyImplyLeading: false, // Eliminar la flecha
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: _onMenuSelected,
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'addGroup',
+                  child: Text('Añadir grupo'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'addContact',
+                  child: Text('Añadir contacto'),
+                ),
+              ];
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          MyFinancesTile(),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _groups.length,
+              itemBuilder: (context, index) {
+                return GroupTile(group: _groups[index]);
+              },
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}

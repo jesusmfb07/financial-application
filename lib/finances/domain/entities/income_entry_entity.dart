@@ -3,15 +3,17 @@ class IncomeEntry {
   final String description;
   final double amount;
   final DateTime date;
-  final String category;
+  final String? category;
   final String? attachmentPath;
+  final String currencySymbol;
 
   IncomeEntry({
     this.id,
     required this.description,
     required this.amount,
     required this.date,
-    required this.category,
+    this.category,
     this.attachmentPath,
+    required this.currencySymbol,
   });
 }

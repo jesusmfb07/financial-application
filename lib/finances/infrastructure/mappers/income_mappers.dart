@@ -9,6 +9,7 @@ class IncomeEntryMapper {
       'date': entry.date.toIso8601String(),
       'category': entry.category,
       'attachmentPath': entry.attachmentPath,
+      'currencySymbol': entry.currencySymbol,
     };
   }
 
@@ -20,6 +21,7 @@ class IncomeEntryMapper {
       date: DateTime.parse(map['date']),
       category: map['category'],
       attachmentPath: map['attachmentPath'],
+      currencySymbol: map['currencySymbol'],
     );
   }
 }
