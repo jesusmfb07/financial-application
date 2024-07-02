@@ -1,14 +1,52 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../../../shared/categories/domain/entities/category_entity.dart';
-import '../../../../../../shared/currencies/domain/entities/currency_entity.dart';
-import '../../../../../../shared/providers/domain/entities/provider_entity.dart';
-import '../../../../../domain/entities/egress_entry_entity.dart';
-import 'egress_entry_form.dart';
-import '../utilities/file_utils.dart';
+import '../../../../shared/categories/application/use_cases/category_use_case.dart';
+import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
+import '../../../../shared/categories/domain/entities/category_entity.dart';
+import '../../../../shared/currencies/domain/entities/currency_entity.dart';
+import '../../../../shared/providers/application/use_cases/provider_use_case.dart';
+import '../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
+import '../../../../shared/providers/domain/entities/provider_entity.dart';
+import '../../../application/use_cases/egress_use_case.dart';
+import '../../../domain/aggregates/egress_aggregate.dart';
+import '../../../domain/entities/egress_entry_entity.dart';
+
+class EgressEntryForm extends StatefulWidget {
+  final CreateEgressEntryUseCase createEntryUseCase;
+  final UpdateEgressEntryUseCase updateEntryUseCase;
+  final EgressEntryAggregate aggregate;
+  final CategoryAggregate categoryAggregate;
+  final ProviderAggregate providerAggregate;
+  final CreateCategoryUseCase createCategoryUseCase;
+  final CreateProviderUseCase createProviderUseCase;
+  final EgressEntry? entry;
+  final VoidCallback onSave;
+  final String defaultCurrencySymbol;
+
+  EgressEntryForm({
+    required this.createEntryUseCase,
+    required this.updateEntryUseCase,
+    required this.aggregate,
+    required this.categoryAggregate,
+    required this.providerAggregate,
+    required this.createCategoryUseCase,
+    required this.createProviderUseCase,
+    this.entry,
+    required this.onSave,
+    required this.defaultCurrencySymbol,
+  });
+
+  @override
+  _EgressEntryFormState createState() => _EgressEntryFormState();
+}
 
 class _EgressEntryFormState extends State<EgressEntryForm> {
   final TextEditingController _descriptionController = TextEditingController();
@@ -42,18 +80,26 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
     }
   }
 
+  Future<String> _saveFileLocally(String filePath) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName = filePath.split('/').last;
+    final localPath = '${directory.path}/$fileName';
+    final localFile = await File(filePath).copy(localPath);
+    return localFile.path;
+  }
+
   void _addEntry() async {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final category =
-        _categoryController.text.isNotEmpty ? _categoryController.text : null;
+    _categoryController.text.isNotEmpty ? _categoryController.text : null;
     final provider =
-        _providerController.text.isNotEmpty ? _providerController.text : null;
+    _providerController.text.isNotEmpty ? _providerController.text : null;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
     if (description.isNotEmpty && amount > 0) {
       final attachmentPath = _attachmentPath != null
-          ? await saveFileLocally(_attachmentPath!)
+          ? await _saveFileLocally(_attachmentPath!)
           : null;
       final entry = EgressEntry(
         description: description,
@@ -74,14 +120,14 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
     final description = _descriptionController.text;
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final category =
-        _categoryController.text.isNotEmpty ? _categoryController.text : null;
+    _categoryController.text.isNotEmpty ? _categoryController.text : null;
     final provider =
-        _providerController.text.isNotEmpty ? _providerController.text : null;
+    _providerController.text.isNotEmpty ? _providerController.text : null;
     final date = DateFormat('yyyy-MM-dd').parse(_dateController.text);
 
     if (description.isNotEmpty && amount > 0) {
       final attachmentPath = _attachmentPath != null
-          ? await saveFileLocally(_attachmentPath!)
+          ? await _saveFileLocally(_attachmentPath!)
           : widget.entry!.attachmentPath;
       final updatedEntry = EgressEntry(
         id: widget.entry!.id,
@@ -101,7 +147,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
 
   void _createCategory(String name) async {
     final existingCategory = widget.categoryAggregate.categories.firstWhere(
-      (category) => category.name == name,
+          (category) => category.name == name,
       orElse: () => Category(id: '', name: ''),
     );
 
@@ -126,7 +172,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
 
   void _createProvider(String name, {String? phoneNumber, String? ruc}) async {
     final existingProvider = widget.providerAggregate.providers.firstWhere(
-      (provider) => provider.name == name,
+          (provider) => provider.name == name,
       orElse: () => Provider(id: '', name: '', phoneNumber: null, ruc: null),
     );
 
@@ -264,13 +310,12 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Center(
-        child: Text(widget.entry == null ? 'Nuevo Egreso' : 'Editar Egreso'),
-      ),
+          child: Text(widget.entry == null ? 'Nuevo Egreso' : 'Editar Egreso')),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          TextField(
+            TextField(
               controller: _dateController,
               readOnly: true,
               decoration: InputDecoration(
