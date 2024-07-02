@@ -10,17 +10,20 @@ class CurrencyAggregate {
     return currencies;
   }
 
-  Currency? getDefaultCurrency() {
-    return currencies.firstWhere(
-          (currency) => currency.code == defaultCurrencyCode,
-      orElse: () => currencies.first,
-    );
-  }
-
   void setDefaultCurrency(String currencyCode) {
     if (currencies.any((currency) => currency.code == currencyCode)) {
       defaultCurrencyCode = currencyCode;
     }
+  }
+
+  Currency? getDefaultCurrency() {
+    if (defaultCurrencyCode != null) {
+      return currencies.firstWhere(
+            (currency) => currency.code == defaultCurrencyCode,
+        orElse: () => currencies.first,
+      );
+    }
+    return currencies.isNotEmpty ? currencies.first : null;
   }
 
   void addCurrencies(List<Currency> newCurrencies) {
@@ -39,3 +42,4 @@ class CurrencyAggregate {
     currencies.addAll(merged);
   }
 }
+

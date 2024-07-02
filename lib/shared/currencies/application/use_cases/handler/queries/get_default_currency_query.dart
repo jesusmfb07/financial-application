@@ -10,6 +10,10 @@ class GetDefaultCurrencyQuery implements GetDefaultCurrencyUseCase {
 
   @override
   Future<Currency?> execute(CurrencyAggregate aggregate) async {
-    return await currencyPort.getDefaultCurrency();
+    final defaultCurrency = await currencyPort.getDefaultCurrency();
+    if (defaultCurrency != null) {
+      aggregate.setDefaultCurrency(defaultCurrency.code);
+    }
+    return defaultCurrency;
   }
 }

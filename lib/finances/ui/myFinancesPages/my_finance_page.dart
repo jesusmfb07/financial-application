@@ -111,15 +111,17 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Mis Finanzas'),
+
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(48.0),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: ToggleButtons(
               borderRadius: BorderRadius.circular(8.0),
-              selectedBorderColor: Theme.of(context).colorScheme.primary,
-              selectedColor: Colors.white,
-              fillColor: Theme.of(context).colorScheme.primary,
+              selectedBorderColor: Colors.teal, // Borde del botón seleccionado en teal
+              selectedColor: Colors.white, // Texto del botón seleccionado en blanco
+              fillColor: Colors.teal, // Fondo del botón seleccionado en teal
+              color: Colors.black,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50.0),

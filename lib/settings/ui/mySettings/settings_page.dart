@@ -82,12 +82,10 @@ class SettingsPage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.white,
-                    child: Text(
-                      'JM',
-                      style: TextStyle(
-                        color: Colors.teal,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Icon(
+                      Icons.settings,
+                      color: Colors.teal,
+                      size: 24, // Ajusta el tamaño del icono según tus necesidades
                     ),
                   ),
                   SizedBox(width: 16.0),
@@ -95,7 +93,7 @@ class SettingsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Jesus Mendoza',
+                        'Ajustes',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18.0,

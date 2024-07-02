@@ -22,7 +22,7 @@ class RegisterPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Graficos'),
-        backgroundColor: Color(0xFF20B2AA),
+        backgroundColor: Colors.teal,
         actions: [
           IconButton(icon: Icon(Icons.calendar_today), onPressed: () {}),
           IconButton(icon: Icon(Icons.camera_alt), onPressed: () {}),

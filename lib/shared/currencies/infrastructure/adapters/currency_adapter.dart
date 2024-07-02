@@ -39,6 +39,7 @@ class CurrencySQLiteAdapter implements CurrencyPort {
             code TEXT PRIMARY KEY
           )
         ''');
+        print('Database and tables created');
       },
     );
   }
@@ -47,6 +48,7 @@ class CurrencySQLiteAdapter implements CurrencyPort {
   Future<List<Currency>> getCurrencies() async {
     final db = await database;
     final result = await db.query('currencies');
+    print('Fetched currencies: $result');
     return result.map((map) => CurrencyMapper.fromMap(map)).toList();
   }
 
@@ -56,11 +58,13 @@ class CurrencySQLiteAdapter implements CurrencyPort {
     final result = await db.query('default_currency');
     if (result.isNotEmpty) {
       final defaultCurrencyCode = result.first['code'] as String;
+      print('Retrieved default currency code: $defaultCurrencyCode');
       final currencyResult = await db.query(
         'currencies',
         where: 'code = ?',
         whereArgs: [defaultCurrencyCode],
       );
+      print('Fetched currency for code $defaultCurrencyCode: $currencyResult');
       if (currencyResult.isNotEmpty) {
         return CurrencyMapper.fromMap(currencyResult.first);
       }
@@ -73,6 +77,7 @@ class CurrencySQLiteAdapter implements CurrencyPort {
     final db = await database;
     await db.delete('default_currency');
     await db.insert('default_currency', {'code': currencyCode});
+    print('Set default currency to: $currencyCode');
   }
 
   Future<void> initializeCurrencies(List<Currency> currencies) async {
@@ -86,5 +91,6 @@ class CurrencySQLiteAdapter implements CurrencyPort {
         );
       }
     });
+    print('Initialized currencies: ${currencies.map((e) => e.code).toList()}');
   }
 }

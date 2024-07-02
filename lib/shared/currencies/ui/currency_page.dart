@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../ui/navigation_bar_page.dart';
 import '../application/use_cases/currency_use_case.dart';
 import '../domain/aggregates/currency_aggregate.dart';
 import '../domain/entities/currency_entity.dart';
+import '../infrastructure/adapters/currency_adapter.dart';
+
 
 class CurrencyPage extends StatefulWidget {
   final GetCurrenciesUseCase getCurrenciesUseCase;
@@ -23,42 +23,64 @@ class CurrencyPage extends StatefulWidget {
   _CurrencyPageState createState() => _CurrencyPageState();
 }
 
-class _CurrencyPageState extends State<CurrencyPage> {
+class _CurrencyPageState extends State<CurrencyPage> with WidgetsBindingObserver {
   int _selectedIndex = 3;
-
   Currency? _defaultCurrency;
-  final List<Currency> _defaultCurrencies = [
-    Currency(name: 'Dólar', code: 'USD'),
-    Currency(name: 'Euro', code: 'EUR'),
-    Currency(name: 'Sol', code: 'PEN'),
-    Currency(name: 'Yen', code: 'JPY'),
-    Currency(name: 'Libra', code: 'GBP'),
-    Currency(name: 'Dólar Australiano', code: 'AUD'),
-    Currency(name: 'Dólar Canadiense', code: 'CAD'),
-    Currency(name: 'Franco Suizo', code: 'CHF'),
-    Currency(name: 'Yuan Chino', code: 'CNY'),
-    Currency(name: 'Rupia India', code: 'INR'),
-  ];
+  final CurrencySQLiteAdapter _currencyAdapter = CurrencySQLiteAdapter();
 
   @override
   void initState() {
     super.initState();
-    _loadCurrencies();
-    _loadDefaultCurrency();
+    WidgetsBinding.instance.addObserver(this);
+    _initializeCurrencies().then((_) {
+      _loadCurrencies();
+      _loadDefaultCurrency();
+    });
+  }
+
+  Future<void> _initializeCurrencies() async {
+    final initialCurrencies = [
+      Currency(name: 'Dólar', code: 'USD'),
+      Currency(name: 'Euro', code: 'EUR'),
+      Currency(name: 'Sol', code: 'PEN'),
+      Currency(name: 'Yen', code: 'JPY'),
+      Currency(name: 'Libra', code: 'GBP'),
+      Currency(name: 'Dólar Australiano', code: 'AUD'),
+      Currency(name: 'Dólar Canadiense', code: 'CAD'),
+      Currency(name: 'Franco Suizo', code: 'CHF'),
+      Currency(name: 'Yuan Chino', code: 'CNY'),
+      Currency(name: 'Rupia India', code: 'INR'),
+    ];
+    await _currencyAdapter.initializeCurrencies(initialCurrencies);
+    print('Initialized currencies: ${initialCurrencies.map((e) => e.code).toList()}');
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadDefaultCurrency();
+    }
   }
 
   Future<void> _loadCurrencies() async {
     final currencies = await widget.getCurrenciesUseCase.execute(widget.aggregate);
     setState(() {
       widget.aggregate.addCurrencies(currencies);
-      widget.aggregate.addDefaultCurrencies(_defaultCurrencies);
     });
+    print('Fetched currencies: ${currencies.map((e) => e.code).toList()}');
   }
 
   Future<void> _loadDefaultCurrency() async {
     final defaultCurrency = await widget.getDefaultCurrencyUseCase.execute(widget.aggregate);
     setState(() {
       _defaultCurrency = defaultCurrency;
+      print('Loaded default currency: $_defaultCurrency');
     });
   }
 
@@ -67,6 +89,7 @@ class _CurrencyPageState extends State<CurrencyPage> {
     setState(() {
       _defaultCurrency = currency;
     });
+    print('Set default currency to: ${currency.code}');
   }
 
   void _showSetDefaultCurrencyDialog(Currency currency) {
@@ -123,7 +146,7 @@ class _CurrencyPageState extends State<CurrencyPage> {
               ),
           ],
         ),
-        centerTitle: true, // This centers the title in the AppBar
+        centerTitle: true,
       ),
       body: ListView.builder(
         itemCount: widget.aggregate.currencies.length,

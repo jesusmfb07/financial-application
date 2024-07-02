@@ -60,43 +60,48 @@ class _ExpenseManagerPageState extends State<ExpenseManagerPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Gestor de Gastos'),
-        automaticallyImplyLeading: false, // Eliminar la flecha
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: _onMenuSelected,
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: 'addGroup',
-                  child: Text('Añadir grupo'),
-                ),
-                PopupMenuItem<String>(
-                  value: 'addContact',
-                  child: Text('Añadir contacto'),
-                ),
-              ];
-            },
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+          title: Text(
+            'Gestor de Gastos',
+            style: TextStyle(color: Colors.white), // Texto en color blanco
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          MyFinancesTile(),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _groups.length,
-              itemBuilder: (context, index) {
-                return GroupTile(group: _groups[index]);
+          automaticallyImplyLeading: false, // Eliminar la flecha
+          actions: [
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: Colors.white),
+              onSelected: _onMenuSelected,
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem<String>(
+                    value: 'addGroup',
+                    child: Text('Añadir grupo'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'addContact',
+                    child: Text('Añadir contacto'),
+                  ),
+                ];
               },
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+        body: Column(
+          children: [
+            MyFinancesTile(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _groups.length,
+                itemBuilder: (context, index) {
+                  return GroupTile(group: _groups[index]);
+                },
+              ),
+            ),
+          ],
+        ),
       bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
