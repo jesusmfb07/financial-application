@@ -15,22 +15,28 @@ class CustomBottomNavigationBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       onTap: (index) {
-        onTap(index);
-        if (index == 3) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SettingsPage()),
-          );
-        } else if (index == 0) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ExpenseManagerPage()),
-          );
-        } else if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RegisterPage()),
-          );
+        if (index != currentIndex) {
+          onTap(index);
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => ExpenseManagerPage()),
+              );
+              break;
+            case 1:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => RegisterPage()),
+              );
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+              break;
+          }
         }
       },
       items: const [

@@ -58,10 +58,11 @@ class EntryTile extends StatelessWidget {
             'Categoría: ${entry.category}',
             style: TextStyle(fontSize: 16.0),
           ),
-          Text(
-            'Proveedor: ${entry.provider}',
-            style: TextStyle(fontSize: 16.0),
-          ),
+          if (entry.provider != null && entry.provider!.isNotEmpty)
+            Text(
+              'Proveedor: ${entry.provider}',
+              style: TextStyle(fontSize: 16.0),
+            ),
           SizedBox(height: 16.0),
           if (entry.attachmentPath != null)
             AttachmentViewer(attachmentPath: entry.attachmentPath),

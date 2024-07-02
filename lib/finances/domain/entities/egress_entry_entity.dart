@@ -14,7 +14,7 @@ class EgressEntry {
     required this.amount,
     required this.date,
     required this.category,
-    required this.provider,
+    this.provider,
     this.attachmentPath,
     required this.currencySymbol,
   });
