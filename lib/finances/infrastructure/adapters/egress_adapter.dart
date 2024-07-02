@@ -27,15 +27,17 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
 
     return await openDatabase(
       path,
-      version: 6, // Incrementa la versión
+      version: 7, // Increment the version
       onCreate: (db, version) async {
         print('Creating database version $version');
         await _createTable(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         print('Upgrading database from $oldVersion to $newVersion');
-        if (oldVersion < 5) {
-          await _createTable(db);
+        if (oldVersion < 7) {
+          await db.execute('''
+          ALTER TABLE egress_entries ADD COLUMN currencySymbol TEXT
+        ''');
         }
       },
     );
@@ -44,16 +46,16 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
   Future<void> _createTable(Database db) async {
     try {
       await db.execute('''
-      CREATE TABLE IF NOT EXISTS egress_entries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        description TEXT,
-        amount REAL,
-        date TEXT,
-        category TEXT,
-        provider TEXT,
-        attachmentPath TEXT,
-        currencySymbol TEXT,
-      )
+    CREATE TABLE IF NOT EXISTS egress_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      description TEXT,
+      amount REAL,
+      date TEXT,
+      category TEXT,
+      provider TEXT,
+      attachmentPath TEXT,
+      currencySymbol TEXT
+    )
     ''');
       print('Table egress_entries created successfully');
     } catch (e) {

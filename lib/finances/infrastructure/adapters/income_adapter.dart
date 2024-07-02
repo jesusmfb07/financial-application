@@ -27,7 +27,7 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
 
     return await openDatabase(
       path,
-      version: 5, // Increment the version to force the upgrade
+      version: 7, // Increment the version to force the upgrade
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE income_entries (
@@ -42,7 +42,7 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
         ''');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 5) {
+        if (oldVersion < 7) {
           await db.execute('''
             CREATE TABLE IF NOT EXISTS income_entries (
               id INTEGER PRIMARY KEY AUTOINCREMENT,

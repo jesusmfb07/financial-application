@@ -47,7 +47,7 @@ class EntryTile extends StatelessWidget {
             ],
           ),
           Text(
-            'Monto: \$${entry.amount.toStringAsFixed(2)}',
+            'Monto: ${entry.currencySymbol}${entry.amount.toStringAsFixed(2)}',
             style: TextStyle(fontSize: 16.0),
           ),
           Text(

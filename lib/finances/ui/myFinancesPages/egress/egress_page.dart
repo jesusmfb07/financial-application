@@ -9,8 +9,8 @@ import '../../../application/use_cases/egress_use_case.dart';
 import '../../../domain/aggregates/egress_aggregate.dart';
 import '../../../domain/entities/egress_entry_entity.dart';
 import '../file_storage_service.dart';
-import 'egress_entry_form.dart';
 import 'egress_entry_list.dart';
+import 'form/formComponents/egress_entry_form.dart';
 import 'image_preview_page.dart';
 import 'pdf_viewer_page.dart';
 
