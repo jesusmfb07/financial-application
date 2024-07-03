@@ -8,7 +8,7 @@ import '../../../domain/entities/income_entry_entity.dart';
 import '../egress/image_preview_page.dart';
 import '../egress/pdf_viewer_page.dart';
 import '../file_storage_service.dart';
-import 'income_entry_form.dart';
+import 'form/income_entry_form.dart';
 import 'income_entry_list.dart';
 import '../../../../shared/categories/application/use_cases/category_use_case.dart';
 import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
@@ -67,10 +67,10 @@ class _IncomePageState extends State<IncomePage> {
     });
   }
 
-  Future<void> _saveAttachment(File file) async {
-    final savedFile = await _fileStorageService.saveFile(file);
-    // Actualiza tu lógica para usar la ruta del archivo guardado.
-  }
+  // Future<void> _saveAttachment(File file) async {
+  //   final savedFile = await _fileStorageService.saveFile(file);
+  //   // Actualiza tu lógica para usar la ruta del archivo guardado.
+  // }
 
   void _viewAttachment(String path) {
     if (path.toLowerCase().endsWith('.jpg') ||
@@ -94,47 +94,47 @@ class _IncomePageState extends State<IncomePage> {
     }
   }
 
-  void _createCategory(String name) async {
-    final newCategory = Category(
-      id: Uuid().v4(), // Genera un ID único para la nueva categoría
-      name: name,
-    );
-    await widget.createCategoryUseCase.execute(widget.categoryAggregate, newCategory);
-    setState(() {
-      widget.categoryAggregate.categories.add(newCategory);
-    });
-  }
+  // void _createCategory(String name) async {
+  //   final newCategory = Category(
+  //     id: Uuid().v4(), // Genera un ID único para la nueva categoría
+  //     name: name,
+  //   );
+  //   await widget.createCategoryUseCase.execute(widget.categoryAggregate, newCategory);
+  //   setState(() {
+  //     widget.categoryAggregate.categories.add(newCategory);
+  //   });
+  // }
 
-  void _showCreateCategoryDialog() {
-    TextEditingController _newCategoryController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Crear Categoría'),
-          content: TextField(
-            controller: _newCategoryController,
-            decoration: InputDecoration(labelText: 'Nombre de la categoría'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                _createCategory(_newCategoryController.text);
-                Navigator.pop(context);
-              },
-              child: Text('Crear'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showCreateCategoryDialog() {
+  //   TextEditingController _newCategoryController = TextEditingController();
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Text('Crear Categoría'),
+  //         content: TextField(
+  //           controller: _newCategoryController,
+  //           decoration: InputDecoration(labelText: 'Nombre de la categoría'),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.pop(context);
+  //             },
+  //             child: Text('Cancelar'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               _createCategory(_newCategoryController.text);
+  //               Navigator.pop(context);
+  //             },
+  //             child: Text('Crear'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   void _showEntryDialog({IncomeEntry? entry}) {
     showDialog(

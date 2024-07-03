@@ -11,6 +11,7 @@ import '../../../domain/entities/egress_entry_entity.dart';
 import '../file_storage_service.dart';
 import 'egress_entry_list.dart';
 import 'egress_form.dart';
+import 'form/egress_entry_form.dart';
 import 'image_preview_page.dart';
 import 'pdf_viewer_page.dart';
 
@@ -82,10 +83,10 @@ class _EgressPageState extends State<EgressPage> {
     });
   }
 
-  Future<void> _saveAttachment(File file) async {
-    final savedFile = await _fileStorageService.saveFile(file);
-    // Actualiza tu lógica para usar la ruta del archivo guardado.
-  }
+  // Future<void> _saveAttachment(File file) async {
+  //   final savedFile = await _fileStorageService.saveFile(file);
+  //   // Actualiza tu lógica para usar la ruta del archivo guardado.
+  // }
 
   void _viewAttachment(String path) {
     if (path.toLowerCase().endsWith('.jpg') ||
