@@ -114,11 +114,11 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
     );
   }
 
-  Future<void> deleteDatabase() async {
-    final databasePath = await getDatabasesPath();
-    final path = join(databasePath, 'finance.db');
-    await databaseFactory.deleteDatabase(path);
-    print('Database deleted');
-    _database = null; // Reset database instance
-  }
+  // Future<void> deleteDatabase() async {
+  //   final databasePath = await getDatabasesPath();
+  //   final path = join(databasePath, 'finance.db');
+  //   await databaseFactory.deleteDatabase(path);
+  //   print('Database deleted');
+  //   _database = null; // Reset database instance
+  // }
 }

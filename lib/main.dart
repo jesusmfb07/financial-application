@@ -12,7 +12,7 @@ void main() async {
   final egressAdapter = EgressEntrySQLiteAdapter();
 
   // Optionally delete the database for testing purposes
-  await incomeAdapter.deleteDatabase();
+  // await incomeAdapter.deleteDatabase();
 
   // Ensure the database is initialized
   await incomeAdapter.database;

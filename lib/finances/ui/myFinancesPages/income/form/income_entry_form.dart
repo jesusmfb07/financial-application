@@ -58,6 +58,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     super.initState();
     _selectedCurrencySymbol = 'S/';
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     if (widget.entry != null) {
       _descriptionController.text = widget.entry!.description;
       _amountController.text = widget.entry!.amount.toString();
@@ -68,6 +69,14 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     } else {
       _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     }
+
+    _descriptionController.addListener(_updateButtonState);
+    _amountController.addListener(_updateButtonState);
+    _categoryController.addListener(_updateButtonState);
+  }
+
+  void _updateButtonState() {
+    setState(() {});
   }
 
   Future<String> _saveIncomeLocally(String filePath) async {
@@ -172,6 +181,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
             setState(() {
               _selectedCurrencySymbol = currency.code;
             });
+            Navigator.pop(context);
           },
         );
       },
@@ -181,12 +191,6 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     return _descriptionController.text.isNotEmpty &&
         _amountController.text.isNotEmpty &&
         _categoryController.text.isNotEmpty;
-  }
-  Color _getButtonColor(Set<MaterialState> states) {
-    if (states.contains(MaterialState.disabled)) {
-      return Colors.red;
-    }
-    return Colors.indigo;
   }
   @override
   Widget build(BuildContext context) {
@@ -329,15 +333,8 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
               }
                   : null,
               child: Text(widget.entry == null ? 'Agregar' : 'Actualizar'),
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return Colors.red;
-                    }
-                    return Colors.indigo;
-                  },
-                ),
+              style: TextButton.styleFrom(
+                foregroundColor: _areRequiredFieldsFilled() ? Colors.indigo : Colors.red,
               ),
             ),
           ],

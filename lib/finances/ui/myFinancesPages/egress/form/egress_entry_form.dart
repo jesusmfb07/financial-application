@@ -80,6 +80,13 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
     } else {
       _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     }
+    _descriptionController.addListener(_updateButtonState);
+    _amountController.addListener(_updateButtonState);
+    _categoryController.addListener(_updateButtonState);
+  }
+
+  void _updateButtonState() {
+    setState(() {});
   }
 
   Future<String> _saveEgressLocally(String filePath) async {
@@ -411,18 +418,18 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
                 ),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: _areRequiredFieldsFilled()
+                    ? () {
                   if (widget.entry == null) {
                     _addEntry();
                   } else {
                     _updateEntry();
                   }
-                },
+                }
+                    : null,
                 child: Text(widget.entry == null ? 'Agregar' : 'Actualizar'),
-                style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.all(
-                    _areRequiredFieldsFilled() ? Colors.indigo : Colors.red,
-                  ),
+                style: TextButton.styleFrom(
+                  foregroundColor: _areRequiredFieldsFilled() ? Colors.indigo : Colors.red,
                 ),
               ),
             ],

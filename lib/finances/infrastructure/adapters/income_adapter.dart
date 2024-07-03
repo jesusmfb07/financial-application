@@ -81,10 +81,10 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
       whereArgs: [entry.id],
     );
   }
-  Future<void> deleteDatabase() async {
-    final databasePath = await getDatabasesPath();
-    final path = join(databasePath, 'finance.db');
-    await databaseFactory.deleteDatabase(path);
-    _database = null; // Reset database instance
-  }
+  // Future<void> deleteDatabase() async {
+  //   final databasePath = await getDatabasesPath();
+  //   final path = join(databasePath, 'finance.db');
+  //   await databaseFactory.deleteDatabase(path);
+  //   _database = null; // Reset database instance
+  // }
 }
