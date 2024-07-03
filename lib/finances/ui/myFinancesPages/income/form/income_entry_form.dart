@@ -48,9 +48,9 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   String? _attachmentPath;
   String _selectedCurrencySymbol = 'S/';
   final List<Currency> _availableCurrencies = [
+    Currency(name: 'Sol', code: 'S/'),
     Currency(name: 'Dolar', code: '\$'),
     Currency(name: 'Euro', code: '€'),
-    Currency(name: 'Sol', code: 'S/'),
   ];
 
   @override
@@ -181,6 +181,12 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     return _descriptionController.text.isNotEmpty &&
         _amountController.text.isNotEmpty &&
         _categoryController.text.isNotEmpty;
+  }
+  Color _getButtonColor(Set<MaterialState> states) {
+    if (states.contains(MaterialState.disabled)) {
+      return Colors.red;
+    }
+    return Colors.indigo;
   }
   @override
   Widget build(BuildContext context) {
@@ -313,17 +319,24 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: _areRequiredFieldsFilled()
+                  ? () {
                 if (widget.entry == null) {
                   _addEntry();
                 } else {
                   _updateEntry();
                 }
-              },
+              }
+                  : null,
               child: Text(widget.entry == null ? 'Agregar' : 'Actualizar'),
               style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all(
-                  _areRequiredFieldsFilled() ? Colors.indigo : Colors.red,
+                foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.red;
+                    }
+                    return Colors.indigo;
+                  },
                 ),
               ),
             ),
