@@ -46,7 +46,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
   String? _attachmentPath;
-  String _selectedCurrencySymbol = '';
+  String _selectedCurrencySymbol = 'S/';
   final List<Currency> _availableCurrencies = [
     Currency(name: 'Dolar', code: '\$'),
     Currency(name: 'Euro', code: '€'),
@@ -56,7 +56,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   @override
   void initState() {
     super.initState();
-    _selectedCurrencySymbol = widget.defaultCurrencySymbol;
+    _selectedCurrencySymbol = 'S/';
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     if (widget.entry != null) {
       _descriptionController.text = widget.entry!.description;
@@ -156,7 +156,6 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
         return CategoryDialog(
           onCreate: (name) {
             _createCategory(name);
-            Navigator.pop(context);
           },
         );
       },
@@ -173,13 +172,16 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
             setState(() {
               _selectedCurrencySymbol = currency.code;
             });
-            Navigator.pop(context);
           },
         );
       },
     );
   }
-
+  bool _areRequiredFieldsFilled() {
+    return _descriptionController.text.isNotEmpty &&
+        _amountController.text.isNotEmpty &&
+        _categoryController.text.isNotEmpty;
+  }
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -223,14 +225,20 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
                 suffixIcon: GestureDetector(
                   onTap: _showCurrencySelectionDialog,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      _selectedCurrencySymbol,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
+                    color: Colors.transparent, // Asegura que el contenedor no bloquee la detección de toques
+                    padding: EdgeInsets.symmetric(horizontal: 16.0), // Amplía el área de toque
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          _selectedCurrencySymbol,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -298,14 +306,26 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: Text('Cancelar'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.indigo, // Cambia el color del texto a índigo
+              ),
             ),
             TextButton(
-              onPressed: widget.entry == null ? _addEntry : _updateEntry,
-              child: Text(widget.entry == null ? 'Añadir' : 'Actualizar'),
+              onPressed: () {
+                if (widget.entry == null) {
+                  _addEntry();
+                } else {
+                  _updateEntry();
+                }
+              },
+              child: Text(widget.entry == null ? 'Agregar' : 'Actualizar'),
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all(
+                  _areRequiredFieldsFilled() ? Colors.indigo : Colors.red,
+                ),
+              ),
             ),
           ],
         ),
