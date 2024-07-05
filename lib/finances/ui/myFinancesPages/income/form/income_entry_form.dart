@@ -55,27 +55,6 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   ];
 
   @override
-  // void initState() {
-  //   super.initState();
-  //   _selectedCurrencySymbol = 'S/';
-  //   _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  //
-  //   if (widget.entry != null) {
-  //     _descriptionController.text = widget.entry!.description;
-  //     _amountController.text = widget.entry!.amount.toString();
-  //     _categoryController.text = widget.entry!.category ?? '';
-  //     _dateController.text =
-  //         DateFormat('yyyy-MM-dd').format(widget.entry!.date);
-  //     _attachmentPath = widget.entry!.attachmentPath;
-  //   } else {
-  //     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  //   }
-  //
-  //   _descriptionController.addListener(_updateButtonState);
-  //   _amountController.addListener(_updateButtonState);
-  //   _categoryController.addListener(_updateButtonState);
-  // }
-  @override
   void initState() {
     super.initState();
     _selectedCurrencySymbol = GlobalConfig().defaultCurrency?.code ?? 'S/'; // Usar la moneda predeterminada

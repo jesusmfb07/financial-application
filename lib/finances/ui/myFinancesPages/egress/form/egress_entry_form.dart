@@ -11,6 +11,7 @@ import '../../../../../shared/categories/application/use_cases/category_use_case
 import '../../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../../../shared/categories/domain/entities/category_entity.dart';
 import '../../../../../shared/currencies/domain/entities/currency_entity.dart';
+import '../../../../../shared/currencies/global_config.dart';
 import '../../../../../shared/providers/application/use_cases/provider_use_case.dart';
 import '../../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
 import '../../../../../shared/providers/domain/entities/provider_entity.dart';
@@ -67,7 +68,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
   @override
   void initState() {
     super.initState();
-    _selectedCurrencySymbol = 'S/';
+    _selectedCurrencySymbol = GlobalConfig().defaultCurrency?.code ?? 'S/';
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     if (widget.entry != null) {
       _descriptionController.text = widget.entry!.description;
