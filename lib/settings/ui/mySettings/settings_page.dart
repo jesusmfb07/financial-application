@@ -1,7 +1,5 @@
-import 'package:exercises_flutter2/shared/currencies/domain/aggregates/currency_aggregate.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../chat/ui/pages/expense_manager_page.dart';
 import '../../../shared/categories/application/use_cases/handler/command/create_category_command.dart';
 import '../../../shared/categories/application/use_cases/handler/command/delete_category_command.dart';
 import '../../../shared/categories/application/use_cases/handler/command/update_category_command.dart';
@@ -12,6 +10,7 @@ import '../../../shared/categories/ui/myCategory/category_page.dart';
 import '../../../shared/currencies/application/use_cases/handler/command/set_currency_command.dart';
 import '../../../shared/currencies/application/use_cases/handler/queries/get_currency_query.dart';
 import '../../../shared/currencies/application/use_cases/handler/queries/get_default_currency_query.dart';
+import '../../../shared/currencies/domain/aggregates/currency_aggregate.dart';
 import '../../../shared/currencies/infrastructure/adapters/currency_adapter.dart';
 import '../../../shared/currencies/ui/currency_page.dart';
 import '../../../shared/providers/application/use_cases/handler/command/create_provider_command.dart';
@@ -23,12 +22,9 @@ import '../../../shared/providers/infrastructure/adapters/provider_database_adap
 import '../../../shared/providers/ui/myProvider/provider_page.dart';
 import '../../infrastructure/adapters/settings_adapter.dart';
 import '../../application/ports/settings_port.dart';
-import '../../../shared/ui/navigation_bar_page.dart';
-
 
 class SettingsPage extends StatelessWidget {
   final SettingsPort settingsPort = SettingsAdapter();
-  int _selectedIndex = 3; // Ajustes es el cuarto elemento
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +34,6 @@ class SettingsPage extends StatelessWidget {
     final updateProviderUseCase = UpdateProviderCommand(providerAdapter);
     final deleteProviderUseCase = DeleteProviderCommand(providerAdapter);
     final getProvidersUseCase = GetProvidersQuery(providerAdapter);
-
 
     final CategorySQLiteAdapter categoryAdapter = CategorySQLiteAdapter();
     final CategoryAggregate categoryAggregate = CategoryAggregate(categories: []);
@@ -53,143 +48,187 @@ class SettingsPage extends StatelessWidget {
     final getDefaultCurrencyUseCase = GetDefaultCurrencyQuery(currencyAdapter);
     final setDefaultCurrencyUseCase = SetDefaultCurrencyCommand(currencyAdapter);
 
-
-    void _onItemTapped(int index) {
-      if (index == 0) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ExpenseManagerPage()),
-        );
-      } else if (index != _selectedIndex) {
-        _selectedIndex = index;
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SettingsPage()),
-        );
-      }
-    }
-
     String formattedDate = DateFormat('dd/MM/yy').format(DateTime.now());
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              color: Colors.teal,
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.settings,
-                      color: Colors.teal,
-                      size: 24, // Ajusta el tamaño del icono según tus necesidades
-                    ),
-                  ),
-                  SizedBox(width: 16.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ajustes',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        formattedDate,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.folder),
-                    title: Text('Recordatorios'),
-                    trailing: Icon(Icons.chevron_right),
-                    onTap: () async {
-                      // Implementación para Recordatorios
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.category),
-                    title: Text('Categorías'),
-                    trailing: Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CategoryPage(
-                            createCategoryUseCase: createCategoryUseCase,
-                            updateCategoryUseCase: updateCategoryUseCase,
-                            deleteCategoryUseCase: deleteCategoryUseCase,
-                            getCategoriesUseCase: getCategoriesUseCase,
-                            aggregate: categoryAggregate,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.business),
-                    title: Text('Proveedores'),
-                    trailing: Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProviderPage(
-                            createProviderUseCase: createProviderUseCase,
-                            updateProviderUseCase: updateProviderUseCase,
-                            deleteProviderUseCase: deleteProviderUseCase,
-                            getProvidersUseCase: getProvidersUseCase,
-                            aggregate: providerAggregate,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.attach_money),
-                    title: Text('Monedas'),
-                    trailing: Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CurrencyPage(
-                            getCurrenciesUseCase: getCurrenciesUseCase,
-                            getDefaultCurrencyUseCase: getDefaultCurrencyUseCase,
-                            setDefaultCurrencyUseCase: setDefaultCurrencyUseCase,
-                            aggregate: currencyAggregate,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+        child: Navigator(
+          onGenerateRoute: (RouteSettings settings) {
+            WidgetBuilder builder;
+            switch (settings.name) {
+              case '/':
+                builder = (BuildContext context) => SettingsMainPage(
+                  createProviderUseCase: createProviderUseCase,
+                  updateProviderUseCase: updateProviderUseCase,
+                  deleteProviderUseCase: deleteProviderUseCase,
+                  getProvidersUseCase: getProvidersUseCase,
+                  providerAggregate: providerAggregate,
+                  createCategoryUseCase: createCategoryUseCase,
+                  updateCategoryUseCase: updateCategoryUseCase,
+                  deleteCategoryUseCase: deleteCategoryUseCase,
+                  getCategoriesUseCase: getCategoriesUseCase,
+                  categoryAggregate: categoryAggregate,
+                  getCurrenciesUseCase: getCurrenciesUseCase,
+                  getDefaultCurrencyUseCase: getDefaultCurrencyUseCase,
+                  setDefaultCurrencyUseCase: setDefaultCurrencyUseCase,
+                  currencyAggregate: currencyAggregate,
+                );
+                break;
+              case '/categories':
+                builder = (BuildContext context) => CategoryPage(
+                  createCategoryUseCase: createCategoryUseCase,
+                  updateCategoryUseCase: updateCategoryUseCase,
+                  deleteCategoryUseCase: deleteCategoryUseCase,
+                  getCategoriesUseCase: getCategoriesUseCase,
+                  aggregate: categoryAggregate,
+                );
+                break;
+              case '/providers':
+                builder = (BuildContext context) => ProviderPage(
+                  createProviderUseCase: createProviderUseCase,
+                  updateProviderUseCase: updateProviderUseCase,
+                  deleteProviderUseCase: deleteProviderUseCase,
+                  getProvidersUseCase: getProvidersUseCase,
+                  aggregate: providerAggregate,
+                );
+                break;
+              case '/currencies':
+                builder = (BuildContext context) => CurrencyPage(
+                  getCurrenciesUseCase: getCurrenciesUseCase,
+                  getDefaultCurrencyUseCase: getDefaultCurrencyUseCase,
+                  setDefaultCurrencyUseCase: setDefaultCurrencyUseCase,
+                  aggregate: currencyAggregate,
+                );
+                break;
+              default:
+                throw Exception('Invalid route: ${settings.name}');
+            }
+            return MaterialPageRoute(builder: builder, settings: settings);
+          },
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
+    );
+  }
+}
+
+class SettingsMainPage extends StatelessWidget {
+  final CreateProviderCommand createProviderUseCase;
+  final UpdateProviderCommand updateProviderUseCase;
+  final DeleteProviderCommand deleteProviderUseCase;
+  final GetProvidersQuery getProvidersUseCase;
+  final ProviderAggregate providerAggregate;
+
+  final CreateCategoryCommand createCategoryUseCase;
+  final UpdateCategoryCommand updateCategoryUseCase;
+  final DeleteCategoryCommand deleteCategoryUseCase;
+  final GetCategoriesQuery getCategoriesUseCase;
+  final CategoryAggregate categoryAggregate;
+
+  final GetCurrenciesQuery getCurrenciesUseCase;
+  final GetDefaultCurrencyQuery getDefaultCurrencyUseCase;
+  final SetDefaultCurrencyCommand setDefaultCurrencyUseCase;
+  final CurrencyAggregate currencyAggregate;
+
+  SettingsMainPage({
+    required this.createProviderUseCase,
+    required this.updateProviderUseCase,
+    required this.deleteProviderUseCase,
+    required this.getProvidersUseCase,
+    required this.providerAggregate,
+    required this.createCategoryUseCase,
+    required this.updateCategoryUseCase,
+    required this.deleteCategoryUseCase,
+    required this.getCategoriesUseCase,
+    required this.categoryAggregate,
+    required this.getCurrenciesUseCase,
+    required this.getDefaultCurrencyUseCase,
+    required this.setDefaultCurrencyUseCase,
+    required this.currencyAggregate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    String formattedDate = DateFormat('dd/MM/yy').format(DateTime.now());
+
+    return Column(
+      children: [
+        Container(
+          color: Colors.teal,
+          padding: EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.settings,
+                  color: Colors.teal,
+                  size: 24,
+                ),
+              ),
+              SizedBox(width: 16.0),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ajustes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ],
+              ),
+              Spacer(),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: [
+              ListTile(
+                leading: Icon(Icons.folder),
+                title: Text('Recordatorios'),
+                trailing: Icon(Icons.chevron_right),
+                onTap: () async {
+                  // Implementación para Recordatorios
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.category),
+                title: Text('Categorías'),
+                trailing: Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pushNamed(context, '/categories');
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.business),
+                title: Text('Proveedores'),
+                trailing: Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pushNamed(context, '/providers');
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.attach_money),
+                title: Text('Monedas'),
+                trailing: Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pushNamed(context, '/currencies');
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

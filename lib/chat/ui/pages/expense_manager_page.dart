@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../shared/ui/navigation_bar_page.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../application/use_cases/get_groups.dart';
 import '../../infrastructure/adapters/group_adapter.dart';
@@ -102,10 +101,6 @@ class _ExpenseManagerPageState extends State<ExpenseManagerPage> {
             ),
           ],
         ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
     );
   }
 }

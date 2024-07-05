@@ -146,10 +146,10 @@ class _CategoryPageState extends State<CategoryPage> {
         onPressed: () => _showAddCategoryDialog(),
         child: Icon(Icons.add),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
+      // bottomNavigationBar: CustomBottomNavigationBar(
+      //   currentIndex: _selectedIndex,
+      //   onTap: _onItemTapped,
+      // ),
     );
   }
 }

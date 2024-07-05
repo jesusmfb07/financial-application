@@ -10,12 +10,9 @@ class MyFinancesTile extends StatelessWidget {
       leading: Icon(Icons.account_circle_outlined),
       title: Text('Mis finanzas'),
       onTap: () {
-        // Navegar a la página MyFinancesPage
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MyFinancesPage()),
-        );
+        Navigator.pushNamed(context, '/my-finances');
       },
     );
   }
 }
+

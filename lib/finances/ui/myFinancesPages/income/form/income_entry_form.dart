@@ -8,6 +8,7 @@ import '../../../../../shared/categories/application/use_cases/category_use_case
 import '../../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../../../shared/categories/domain/entities/category_entity.dart';
 import '../../../../../shared/currencies/domain/entities/currency_entity.dart';
+import '../../../../../shared/currencies/global_config.dart';
 import '../../../../application/use_cases/income_use_case.dart';
 import '../../../../domain/aggregates/income_aggregate.dart';
 import '../../../../domain/entities/income_entry_entity.dart';
@@ -54,17 +55,37 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
   ];
 
   @override
+  // void initState() {
+  //   super.initState();
+  //   _selectedCurrencySymbol = 'S/';
+  //   _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  //
+  //   if (widget.entry != null) {
+  //     _descriptionController.text = widget.entry!.description;
+  //     _amountController.text = widget.entry!.amount.toString();
+  //     _categoryController.text = widget.entry!.category ?? '';
+  //     _dateController.text =
+  //         DateFormat('yyyy-MM-dd').format(widget.entry!.date);
+  //     _attachmentPath = widget.entry!.attachmentPath;
+  //   } else {
+  //     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  //   }
+  //
+  //   _descriptionController.addListener(_updateButtonState);
+  //   _amountController.addListener(_updateButtonState);
+  //   _categoryController.addListener(_updateButtonState);
+  // }
+  @override
   void initState() {
     super.initState();
-    _selectedCurrencySymbol = 'S/';
+    _selectedCurrencySymbol = GlobalConfig().defaultCurrency?.code ?? 'S/'; // Usar la moneda predeterminada
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     if (widget.entry != null) {
       _descriptionController.text = widget.entry!.description;
       _amountController.text = widget.entry!.amount.toString();
       _categoryController.text = widget.entry!.category ?? '';
-      _dateController.text =
-          DateFormat('yyyy-MM-dd').format(widget.entry!.date);
+      _dateController.text = DateFormat('yyyy-MM-dd').format(widget.entry!.date);
       _attachmentPath = widget.entry!.attachmentPath;
     } else {
       _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -74,7 +95,6 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     _amountController.addListener(_updateButtonState);
     _categoryController.addListener(_updateButtonState);
   }
-
   void _updateButtonState() {
     setState(() {});
   }
@@ -226,7 +246,6 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
             TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,

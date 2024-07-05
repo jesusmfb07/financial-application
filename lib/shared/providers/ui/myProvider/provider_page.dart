@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../ui/navigation_bar_page.dart';
 import '../../application/use_cases/provider_use_case.dart';
 import '../../domain/aggregates/provider_aggregate.dart';
 import '../../domain/entities/provider_entity.dart';
@@ -27,7 +26,6 @@ class _ProviderPageState extends State<ProviderPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _rucController = TextEditingController();
-  int _selectedIndex = 3;
 
   @override
   void initState() {
@@ -60,7 +58,6 @@ class _ProviderPageState extends State<ProviderPage> {
     } else {
       await widget.updateProviderUseCase.execute(widget.aggregate, provider);
     }
-
     _nameController.clear();
     _phoneNumberController.clear();
     _rucController.clear();
@@ -137,12 +134,6 @@ class _ProviderPageState extends State<ProviderPage> {
     );
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,10 +183,6 @@ class _ProviderPageState extends State<ProviderPage> {
         onPressed: () => _showAddProviderDialog(),
         tooltip: 'Agregar proveedor',
         child: Icon(Icons.add),
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }

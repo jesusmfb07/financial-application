@@ -165,10 +165,7 @@ class _MyFinancesPageState extends State<MyFinancesPage> {
         categoryAggregate: categoryAggregate,
         providerAggregate: providerAggregate,
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
     );
   }
 }
+
