@@ -9,8 +9,20 @@ class CreateProviderCommand implements CreateProviderUseCase {
   CreateProviderCommand(this.providerPort);
 
   @override
-  Future<void> execute(ProviderAggregate aggregate, Provider provider) async {
-    aggregate.createProvider(provider);
+  Future<void> execute(ProviderAggregate providerAggregate) async {
+    // Conversión de ProviderAggregate a Provider
+    final provider = Provider(
+      id: providerAggregate.id,
+      name: providerAggregate.name,
+      phoneNumber: providerAggregate.phoneNumber,
+      ruc: providerAggregate.ruc,
+    );
+
+    // Validaciones o cualquier lógica de negocio necesaria antes de crear el proveedor
+    if (provider.name.isEmpty) {
+      throw Exception('El nombre del proveedor no puede estar vacío');
+    }
+
     await providerPort.createProvider(provider);
   }
 }

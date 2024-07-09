@@ -8,7 +8,7 @@
 // import 'package:path_provider/path_provider.dart';
 // import 'package:uuid/uuid.dart';
 //
-// import '../../../../shared/categories/application/use_cases/category_use_case.dart';
+// import '../../../../shared/categories/application/use_cases/get_category_use_case.dart';
 // import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 // import '../../../../shared/categories/domain/entities/category_entity.dart';
 // import '../../../../shared/currencies/domain/entities/currency_entity.dart';

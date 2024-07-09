@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../../../application/use_cases/egress_use_case.dart';
+import '../../../application/use_cases/get_egress_use_case.dart';
 import '../../../domain/aggregates/egress_aggregate.dart';
 import '../../../domain/entities/egress_entry_entity.dart';
 import 'widgets/entry_tile.dart';

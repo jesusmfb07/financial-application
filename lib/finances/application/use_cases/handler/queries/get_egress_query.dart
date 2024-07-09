@@ -1,7 +1,7 @@
 import '../../../../domain/aggregates/egress_aggregate.dart';
 import '../../../../domain/entities/egress_entry_entity.dart';
 import '../../../ports/egress_port.dart';
-import '../../egress_use_case.dart';
+import '../../get_egress_use_case.dart';
 
 class GetEgressEntriesQuery implements GetEgressEntriesUseCase {
   final EgressEntryPort egressEntryPort;

@@ -29,14 +29,14 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ProviderSQLiteAdapter providerAdapter = ProviderSQLiteAdapter();
-    final ProviderAggregate providerAggregate = ProviderAggregate(providers: []);
+    // final ProviderAggregate providerAggregate = ProviderAggregate(providers: []);
     final createProviderUseCase = CreateProviderCommand(providerAdapter);
     final updateProviderUseCase = UpdateProviderCommand(providerAdapter);
     final deleteProviderUseCase = DeleteProviderCommand(providerAdapter);
     final getProvidersUseCase = GetProvidersQuery(providerAdapter);
 
     final CategorySQLiteAdapter categoryAdapter = CategorySQLiteAdapter();
-    final CategoryAggregate categoryAggregate = CategoryAggregate(categories: []);
+    // final CategoryAggregate categoryAggregate = CategoryAggregate(categories: []);
     final createCategoryUseCase = CreateCategoryCommand(categoryAdapter);
     final updateCategoryUseCase = UpdateCategoryCommand(categoryAdapter);
     final deleteCategoryUseCase = DeleteCategoryCommand(categoryAdapter);
@@ -62,12 +62,12 @@ class SettingsPage extends StatelessWidget {
                   updateProviderUseCase: updateProviderUseCase,
                   deleteProviderUseCase: deleteProviderUseCase,
                   getProvidersUseCase: getProvidersUseCase,
-                  providerAggregate: providerAggregate,
+                  // providerAggregate: providerAggregate,
                   createCategoryUseCase: createCategoryUseCase,
                   updateCategoryUseCase: updateCategoryUseCase,
                   deleteCategoryUseCase: deleteCategoryUseCase,
                   getCategoriesUseCase: getCategoriesUseCase,
-                  categoryAggregate: categoryAggregate,
+                  // categoryAggregate: categoryAggregate,
                   getCurrenciesUseCase: getCurrenciesUseCase,
                   getDefaultCurrencyUseCase: getDefaultCurrencyUseCase,
                   setDefaultCurrencyUseCase: setDefaultCurrencyUseCase,
@@ -80,7 +80,7 @@ class SettingsPage extends StatelessWidget {
                   updateCategoryUseCase: updateCategoryUseCase,
                   deleteCategoryUseCase: deleteCategoryUseCase,
                   getCategoriesUseCase: getCategoriesUseCase,
-                  aggregate: categoryAggregate,
+                  // aggregate: categoryAggregate,
                 );
                 break;
               case '/providers':
@@ -89,7 +89,7 @@ class SettingsPage extends StatelessWidget {
                   updateProviderUseCase: updateProviderUseCase,
                   deleteProviderUseCase: deleteProviderUseCase,
                   getProvidersUseCase: getProvidersUseCase,
-                  aggregate: providerAggregate,
+                  // aggregate: providerAggregate,
                 );
                 break;
               case '/currencies':
@@ -122,7 +122,7 @@ class SettingsMainPage extends StatelessWidget {
   final UpdateCategoryCommand updateCategoryUseCase;
   final DeleteCategoryCommand deleteCategoryUseCase;
   final GetCategoriesQuery getCategoriesUseCase;
-  final CategoryAggregate categoryAggregate;
+  // final CategoryAggregate categoryAggregate;
 
   final GetCurrenciesQuery getCurrenciesUseCase;
   final GetDefaultCurrencyQuery getDefaultCurrencyUseCase;
@@ -139,7 +139,7 @@ class SettingsMainPage extends StatelessWidget {
     required this.updateCategoryUseCase,
     required this.deleteCategoryUseCase,
     required this.getCategoriesUseCase,
-    required this.categoryAggregate,
+    // required this.categoryAggregate,
     required this.getCurrenciesUseCase,
     required this.getDefaultCurrencyUseCase,
     required this.setDefaultCurrencyUseCase,

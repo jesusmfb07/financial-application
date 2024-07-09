@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../../shared/categories/application/use_cases/category_use_case.dart';
+import '../../../../../shared/categories/application/use_cases/create_category_use_case.dart';
+import '../../../../../shared/categories/application/use_cases/get_category_use_case.dart';
 import '../../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../../../shared/categories/domain/entities/category_entity.dart';
 import '../../../../../shared/currencies/domain/entities/currency_entity.dart';
@@ -26,10 +27,12 @@ class EgressEntryForm extends StatefulWidget {
   final CreateEgressEntryUseCase createEntryUseCase;
   final UpdateEgressEntryUseCase updateEntryUseCase;
   final EgressEntryAggregate aggregate;
-  final CategoryAggregate categoryAggregate;
+  final List<CategoryAggregate> categoryAggregates;
   final ProviderAggregate providerAggregate;
   final CreateCategoryUseCase createCategoryUseCase;
+  final GetCategoriesUseCase getCategoriesUseCase;
   final CreateProviderUseCase createProviderUseCase;
+  final GetProvidersUseCase getProvidersUseCase;
   final EgressEntry? entry;
   final VoidCallback onSave;
   final String defaultCurrencySymbol;
@@ -38,9 +41,11 @@ class EgressEntryForm extends StatefulWidget {
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
     required this.aggregate,
-    required this.categoryAggregate,
+    required this.categoryAggregates,
     required this.providerAggregate,
     required this.createCategoryUseCase,
+    required this.getCategoriesUseCase,
+    required this.getProvidersUseCase,
     required this.createProviderUseCase,
     this.entry,
     required this.onSave,
@@ -64,6 +69,8 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
     Currency(name: 'Dolar', code: '\$'),
     Currency(name: 'Euro', code: '€'),
   ];
+  List<CategoryAggregate> localCategories = [];
+  List<ProviderAggregate> localProviders = [];
 
   @override
   void initState() {
@@ -84,8 +91,13 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
     _descriptionController.addListener(_updateButtonState);
     _amountController.addListener(_updateButtonState);
     _categoryController.addListener(_updateButtonState);
-  }
 
+    _loadCategories();
+  }
+  void _loadCategories() async {
+    localCategories = await widget.getCategoriesUseCase.execute();
+    setState(() {});
+  }
   void _updateButtonState() {
     setState(() {});
   }
@@ -152,7 +164,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
   }
 
   void _createCategory(String name) async {
-    final existingCategory = widget.categoryAggregate.categories.firstWhere(
+    final existingCategory = localCategories.firstWhere(
           (category) => category.name == name,
       orElse: () => Category(id: '', name: ''),
     );
@@ -162,11 +174,10 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
         id: Uuid().v4(),
         name: name,
       );
-      await widget.createCategoryUseCase
-          .execute(widget.categoryAggregate, newCategory);
+      await widget.createCategoryUseCase.execute(newCategory);
 
       setState(() {
-        widget.categoryAggregate.categories.add(newCategory);
+        localCategories.add(newCategory);
         _categoryController.text = newCategory.name;
       });
     } else {
@@ -177,7 +188,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
   }
 
   void _createProvider(String name, {String? phoneNumber, String? ruc}) async {
-    final existingProvider = widget.providerAggregate.providers.firstWhere(
+    final existingProvider = localProviders.firstWhere(
           (provider) => provider.name == name,
       orElse: () => Provider(id: '', name: '', phoneNumber: null, ruc: null),
     );
@@ -193,7 +204,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
           .execute(widget.providerAggregate, newProvider);
 
       setState(() {
-        widget.providerAggregate.providers.add(newProvider);
+        localProviders.add(newProvider);
         _providerController.text = newProvider.name;
       });
     } else {
@@ -327,14 +338,14 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
                 if (textEditingValue.text.isEmpty) {
                   return const Iterable<String>.empty();
                 }
-                return widget.categoryAggregate.categories
-                    .where((Category category) => category.name
+                return localCategories
+                    .where((category) => category.name
                     .toLowerCase()
                     .contains(textEditingValue.text.toLowerCase()))
-                    .map((Category category) => category.name);
+                    .map((category) => category.name);
               },
-              onSelected: (String selection) {
-                _categoryController.text = selection;
+              onSelected: (String selectedCategory) {
+                _categoryController.text = selectedCategory;
               },
               fieldViewBuilder: (BuildContext context,
                   TextEditingController textEditingController,
@@ -360,11 +371,11 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
                 if (textEditingValue.text.isEmpty) {
                   return const Iterable<String>.empty();
                 }
-                return widget.providerAggregate.providers
-                    .where((Provider provider) => provider.name
+                return localProviders
+                    .where((provider) => provider.name
                     .toLowerCase()
                     .contains(textEditingValue.text.toLowerCase()))
-                    .map((Provider provider) => provider.name);
+                    .map((provider) => provider.name);
               },
               onSelected: (String selection) {
                 _providerController.text = selection;
@@ -373,7 +384,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
                   TextEditingController textEditingController,
                   FocusNode focusNode,
                   VoidCallback onFieldSubmitted) {
-                textEditingController.text = _providerController.text;
+                _providerController.text = textEditingController.text;
                 return TextField(
                   controller: textEditingController,
                   focusNode: focusNode,

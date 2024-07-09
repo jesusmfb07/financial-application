@@ -1,16 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
-import '../../../../shared/categories/application/use_cases/category_use_case.dart';
+import '../../../../shared/categories/application/use_cases/create_category_use_case.dart';
+import '../../../../shared/categories/application/use_cases/get_category_use_case.dart';
 import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../../shared/providers/application/use_cases/provider_use_case.dart';
 import '../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
 import '../../../application/use_cases/egress_use_case.dart';
+import '../../../application/use_cases/get_egress_use_case.dart';
 import '../../../domain/aggregates/egress_aggregate.dart';
 import '../../../domain/entities/egress_entry_entity.dart';
 import '../file_storage_service.dart';
 import 'egress_entry_list.dart';
-import 'egress_form.dart';
 import 'form/egress_entry_form.dart';
 import 'image_preview_page.dart';
 import 'pdf_viewer_page.dart';
@@ -24,8 +25,8 @@ class EgressPage extends StatefulWidget {
   final GetProvidersUseCase getProvidersUseCase;
   final CreateProviderUseCase createProviderUseCase;
   final EgressEntryAggregate aggregate;
-  final CategoryAggregate categoryAggregate;
-  final ProviderAggregate providerAggregate;
+  final List<CategoryAggregate> categoryAggregates;
+  final List<ProviderAggregate> providerAggregates;
   final String? attachmentPath;
   final String defaultCurrencySymbol;
 
@@ -38,8 +39,8 @@ class EgressPage extends StatefulWidget {
     required this.getProvidersUseCase,
     required this.createProviderUseCase,
     required this.aggregate,
-    required this.categoryAggregate,
-    required this.providerAggregate,
+    required this.categoryAggregates,
+    required this.providerAggregates,
     this.attachmentPath,
     this.defaultCurrencySymbol = '\$',
   });
@@ -68,25 +69,22 @@ class _EgressPageState extends State<EgressPage> {
   }
 
   Future<void> _loadCategories() async {
-    final categories = await widget.getCategoriesUseCase.execute(widget.categoryAggregate);
+    final categories = await widget.getCategoriesUseCase.execute();
     setState(() {
-      widget.categoryAggregate.categories.clear();
-      widget.categoryAggregate.categories.addAll(categories);
+      widget.categoryAggregates.clear();
+      widget.categoryAggregates.addAll(categories);
     });
   }
+
 
   Future<void> _loadProviders() async {
-    final providers = await widget.getProvidersUseCase.execute(widget.providerAggregate);
+    final providers = await widget.getProvidersUseCase.execute();
     setState(() {
-      widget.providerAggregate.providers.clear();
-      widget.providerAggregate.providers.addAll(providers);
+      widget.providerAggregates.clear();
+      widget.providerAggregates.addAll(providers);
     });
   }
 
-  // Future<void> _saveAttachment(File file) async {
-  //   final savedFile = await _fileStorageService.saveFile(file);
-  //   // Actualiza tu lógica para usar la ruta del archivo guardado.
-  // }
 
   void _viewAttachment(String path) {
     if (path.toLowerCase().endsWith('.jpg') ||
@@ -134,9 +132,11 @@ class _EgressPageState extends State<EgressPage> {
           createEntryUseCase: widget.createEntryUseCase,
           updateEntryUseCase: widget.updateEntryUseCase,
           aggregate: widget.aggregate,
-          categoryAggregate: widget.categoryAggregate,
+          categoryAggregates: widget.categoryAggregates,
+          getCategoriesUseCase: widget.getCategoriesUseCase,
           createCategoryUseCase: widget.createCategoryUseCase,
-          providerAggregate: widget.providerAggregate,
+          providerAggregate: widget.providerAggregates,
+          getProvidersUseCase: widget.getProvidersUseCase,
           createProviderUseCase: widget.createProviderUseCase,
           entry: entry,
           onSave: _loadEntries,

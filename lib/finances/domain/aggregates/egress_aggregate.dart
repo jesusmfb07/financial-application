@@ -15,12 +15,4 @@ class EgressEntryAggregate {
       entries[index] = entry;
     }
   }
-
-  // void deleteEntry(String id) {
-  //   entries.removeWhere((e) => e.id == id);
-  // }
-  //
-  // List<EgressEntry> getEntries() {
-  //   return entries;
-  // }
 }

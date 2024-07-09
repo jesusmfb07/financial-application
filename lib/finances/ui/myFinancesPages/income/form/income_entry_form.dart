@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../../shared/categories/application/use_cases/category_use_case.dart';
+import '../../../../../shared/categories/application/use_cases/create_category_use_case.dart';
+import '../../../../../shared/categories/application/use_cases/get_category_use_case.dart';
 import '../../../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../../../shared/categories/domain/entities/category_entity.dart';
 import '../../../../../shared/currencies/domain/entities/currency_entity.dart';
@@ -20,8 +21,9 @@ class IncomeEntryForm extends StatefulWidget {
   final CreateIncomeEntryUseCase createEntryUseCase;
   final UpdateIncomeEntryUseCase updateEntryUseCase;
   final IncomeEntryAggregate aggregate;
-  final CategoryAggregate categoryAggregate;
+  final List<CategoryAggregate> categoryAggregates;
   final CreateCategoryUseCase createCategoryUseCase;
+  final GetCategoriesUseCase getCategoriesUseCase;
   final IncomeEntry? entry;
   final VoidCallback onSave;
   final String defaultCurrencySymbol;
@@ -30,8 +32,9 @@ class IncomeEntryForm extends StatefulWidget {
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
     required this.aggregate,
-    required this.categoryAggregate,
+    required this.categoryAggregates,
     required this.createCategoryUseCase,
+    required this.getCategoriesUseCase,
     this.entry,
     required this.onSave,
     required this.defaultCurrencySymbol,
@@ -53,18 +56,21 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     Currency(name: 'Dolar', code: '\$'),
     Currency(name: 'Euro', code: '€'),
   ];
+  List<CategoryAggregate> localCategories = [];
 
   @override
   void initState() {
     super.initState();
-    _selectedCurrencySymbol = GlobalConfig().defaultCurrency?.code ?? 'S/'; // Usar la moneda predeterminada
+    _selectedCurrencySymbol = GlobalConfig().defaultCurrency?.code ??
+        'S/'; // Usar la moneda predeterminada
     _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     if (widget.entry != null) {
       _descriptionController.text = widget.entry!.description;
       _amountController.text = widget.entry!.amount.toString();
       _categoryController.text = widget.entry!.category ?? '';
-      _dateController.text = DateFormat('yyyy-MM-dd').format(widget.entry!.date);
+      _dateController.text =
+          DateFormat('yyyy-MM-dd').format(widget.entry!.date);
       _attachmentPath = widget.entry!.attachmentPath;
     } else {
       _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -73,7 +79,11 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     _descriptionController.addListener(_updateButtonState);
     _amountController.addListener(_updateButtonState);
     _categoryController.addListener(_updateButtonState);
+
+    // Cargar las categorías al inicializar
+    _loadCategories();
   }
+
   void _updateButtonState() {
     setState(() {});
   }
@@ -133,21 +143,26 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
     }
   }
 
+  void _loadCategories() async {
+    localCategories = await widget.getCategoriesUseCase.execute();
+    setState(() {});
+  }
+
   void _createCategory(String name) async {
-    final existingCategory = widget.categoryAggregate.categories.firstWhere(
-        (category) => category.name == name,
-        orElse: () => Category(id: '', name: ''));
+    final existingCategory = localCategories.firstWhere(
+      (category) => category.name == name,
+      orElse: () => Category(id: '', name: ''),
+    );
 
     if (existingCategory.id.isEmpty) {
       final newCategory = Category(
         id: Uuid().v4(),
         name: name,
       );
-      await widget.createCategoryUseCase
-          .execute(widget.categoryAggregate, newCategory);
+      await widget.createCategoryUseCase.execute(newCategory);
 
       setState(() {
-        widget.categoryAggregate.categories.add(newCategory);
+        localCategories.add(newCategory);
         _categoryController.text = newCategory.name;
       });
     } else {
@@ -186,11 +201,13 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
       },
     );
   }
+
   bool _areRequiredFieldsFilled() {
     return _descriptionController.text.isNotEmpty &&
         _amountController.text.isNotEmpty &&
         _categoryController.text.isNotEmpty;
   }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -233,8 +250,10 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
                 suffixIcon: GestureDetector(
                   onTap: _showCurrencySelectionDialog,
                   child: Container(
-                    color: Colors.transparent, // Asegura que el contenedor no bloquee la detección de toques
-                    padding: EdgeInsets.symmetric(horizontal: 16.0), // Amplía el área de toque
+                    color: Colors.transparent,
+                    // Asegura que el contenedor no bloquee la detección de toques
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    // Amplía el área de toque
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -263,14 +282,14 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
                 if (textEditingValue.text.isEmpty) {
                   return const Iterable<String>.empty();
                 }
-                return widget.categoryAggregate.categories
-                    .where((Category category) => category.name
-                        .toLowerCase()
-                        .contains(textEditingValue.text.toLowerCase()))
-                    .map((Category category) => category.name);
+                return localCategories
+                    .where((category) => category.name
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()))
+                    .map((category) => category.name);
               },
-              onSelected: (String selection) {
-                _categoryController.text = selection;
+              onSelected: (String selectedCategory) {
+                _categoryController.text = selectedCategory;
               },
               fieldViewBuilder: (BuildContext context,
                   TextEditingController textEditingController,
@@ -317,22 +336,24 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
               onPressed: () => Navigator.pop(context),
               child: Text('Cancelar'),
               style: TextButton.styleFrom(
-                foregroundColor: Colors.indigo, // Cambia el color del texto a índigo
+                foregroundColor:
+                    Colors.indigo, // Cambia el color del texto a índigo
               ),
             ),
             TextButton(
               onPressed: _areRequiredFieldsFilled()
                   ? () {
-                if (widget.entry == null) {
-                  _addEntry();
-                } else {
-                  _updateEntry();
-                }
-              }
+                      if (widget.entry == null) {
+                        _addEntry();
+                      } else {
+                        _updateEntry();
+                      }
+                    }
                   : null,
               child: Text(widget.entry == null ? 'Agregar' : 'Actualizar'),
               style: TextButton.styleFrom(
-                foregroundColor: _areRequiredFieldsFilled() ? Colors.indigo : Colors.red,
+                foregroundColor:
+                    _areRequiredFieldsFilled() ? Colors.indigo : Colors.red,
               ),
             ),
           ],

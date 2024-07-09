@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../../ui/navigation_bar_page.dart';
-import '../../application/use_cases/category_use_case.dart';
+import '../../application/use_cases/create_category_use_case.dart';
+import '../../application/use_cases/delete_category_use_case.dart';
+import '../../application/use_cases/get_category_use_case.dart';
+import '../../application/use_cases/update_category_use_case.dart';
 import '../../domain/aggregates/category_aggregate.dart';
 import '../../domain/entities/category_entity.dart';
-
 
 class CategoryPage extends StatefulWidget {
   final CreateCategoryUseCase createCategoryUseCase;
   final UpdateCategoryUseCase updateCategoryUseCase;
   final DeleteCategoryUseCase deleteCategoryUseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
-  final CategoryAggregate aggregate;
 
   CategoryPage({
     required this.createCategoryUseCase,
     required this.updateCategoryUseCase,
     required this.deleteCategoryUseCase,
     required this.getCategoriesUseCase,
-    required this.aggregate,
   });
 
   @override
@@ -26,7 +25,8 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   final TextEditingController _categoryController = TextEditingController();
-  int _selectedIndex = 3;
+  // int _selectedIndex = 3;
+  List<CategoryAggregate> _categories = [];
 
   @override
   void initState() {
@@ -35,10 +35,9 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<void> _loadCategories() async {
-    final categories = await widget.getCategoriesUseCase.execute(widget.aggregate);
+    final categories = await widget.getCategoriesUseCase.execute();
     setState(() {
-      widget.aggregate.categories.clear();
-      widget.aggregate.categories.addAll(categories);
+      _categories = categories;
     });
   }
 
@@ -51,9 +50,9 @@ class _CategoryPageState extends State<CategoryPage> {
     );
 
     if (id == null) {
-      await widget.createCategoryUseCase.execute(widget.aggregate, category);
+      await widget.createCategoryUseCase.execute(category);
     } else {
-      await widget.updateCategoryUseCase.execute(widget.aggregate, category);
+      await widget.updateCategoryUseCase.execute(category);
     }
 
     _categoryController.clear();
@@ -61,8 +60,8 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<void> _deleteCategoryById(String id) async {
-    final category = widget.aggregate.categories.firstWhere((c) => c.id == id);
-    await widget.deleteCategoryUseCase.execute(widget.aggregate, category);
+    final category = _categories.firstWhere((c) => c.id == id);
+    await widget.deleteCategoryUseCase.execute(category);
     _loadCategories();
   }
 
@@ -98,11 +97,11 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -111,9 +110,9 @@ class _CategoryPageState extends State<CategoryPage> {
         title: Text('Categorías'),
       ),
       body: ListView.builder(
-        itemCount: widget.aggregate.categories.length,
+        itemCount: _categories.length,
         itemBuilder: (context, index) {
-          final category = widget.aggregate.categories[index];
+          final category = _categories[index];
           return ListTile(
             title: Text(category.name),
             trailing: Row(
@@ -146,10 +145,6 @@ class _CategoryPageState extends State<CategoryPage> {
         onPressed: () => _showAddCategoryDialog(),
         child: Icon(Icons.add),
       ),
-      // bottomNavigationBar: CustomBottomNavigationBar(
-      //   currentIndex: _selectedIndex,
-      //   onTap: _onItemTapped,
-      // ),
     );
   }
 }
