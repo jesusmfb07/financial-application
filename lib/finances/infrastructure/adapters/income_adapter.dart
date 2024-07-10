@@ -72,6 +72,18 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
     });
   }
 
+  Future<List<Map<String, dynamic>>> getAllEntries() async {
+    final db = await database;
+    return await db.query('income_entries');
+  }
+
+  Future<void> insertEntries(List<Map<String, dynamic>> entries) async {
+    final db = await database;
+    for (var entry in entries) {
+      await db.insert('income_entries', entry);
+    }
+  }
+
   Future<void> updateEntry(IncomeEntry entry) async {
     final db = await database;
     await db.update(
@@ -81,10 +93,11 @@ class IncomeEntrySQLiteAdapter implements IncomeEntryPort {
       whereArgs: [entry.id],
     );
   }
-  // Future<void> deleteDatabase() async {
-  //   final databasePath = await getDatabasesPath();
-  //   final path = join(databasePath, 'finance.db');
-  //   await databaseFactory.deleteDatabase(path);
-  //   _database = null; // Reset database instance
-  // }
+
+// Future<void> deleteDatabase() async {
+//   final databasePath = await getDatabasesPath();
+//   final path = join(databasePath, 'finance.db');
+//   await databaseFactory.deleteDatabase(path);
+//   _database = null; // Reset database instance
+// }
 }

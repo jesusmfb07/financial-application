@@ -24,7 +24,8 @@ dependencies:
   flutter_cached_pdfview: ^0.4.2
   chakre_pdf_viewer: ^1.1.0
   pdf_render: ^1.4.10
-  uuid: 4.4.0
+  uuid: ^4.4.0
+  flutter_launcher_icons: ^0.13.1
 #  get_it: 7.7.0
 #  injectable: 2.4.2
 

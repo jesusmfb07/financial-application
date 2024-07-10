@@ -104,6 +104,18 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getAllEntries() async {
+    final db = await database;
+    return await db.query('egress_entries');
+  }
+
+  Future<void> insertEntries(List<Map<String, dynamic>> entries) async {
+    final db = await database;
+    for (var entry in entries) {
+      await db.insert('egress_entries', entry);
+    }
+  }
+
   Future<void> updateEntry(EgressEntry entry) async {
     final db = await database;
     await db.update(
@@ -114,11 +126,11 @@ class EgressEntrySQLiteAdapter implements EgressEntryPort {
     );
   }
 
-  // Future<void> deleteDatabase() async {
-  //   final databasePath = await getDatabasesPath();
-  //   final path = join(databasePath, 'finance.db');
-  //   await databaseFactory.deleteDatabase(path);
-  //   print('Database deleted');
-  //   _database = null; // Reset database instance
-  // }
+// Future<void> deleteDatabase() async {
+//   final databasePath = await getDatabasesPath();
+//   final path = join(databasePath, 'finance.db');
+//   await databaseFactory.deleteDatabase(path);
+//   print('Database deleted');
+//   _database = null; // Reset database instance
+// }
 }
