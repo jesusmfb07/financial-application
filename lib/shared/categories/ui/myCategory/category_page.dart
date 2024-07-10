@@ -25,7 +25,6 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   final TextEditingController _categoryController = TextEditingController();
-  // int _selectedIndex = 3;
   List<CategoryAggregate> _categories = [];
 
   @override
@@ -96,12 +95,6 @@ class _CategoryPageState extends State<CategoryPage> {
       ),
     );
   }
-
-  // void _onItemTapped(int index) {
-  //   setState(() {
-  //     _selectedIndex = index;
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {

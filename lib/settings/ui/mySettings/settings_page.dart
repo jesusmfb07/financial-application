@@ -4,46 +4,38 @@ import '../../../shared/categories/application/use_cases/handler/command/create_
 import '../../../shared/categories/application/use_cases/handler/command/delete_category_command.dart';
 import '../../../shared/categories/application/use_cases/handler/command/update_category_command.dart';
 import '../../../shared/categories/application/use_cases/handler/queries/get_categories_command.dart';
-import '../../../shared/categories/domain/aggregates/category_aggregate.dart';
 import '../../../shared/categories/infrastructure/adapters/category_sqlite_adapter.dart';
 import '../../../shared/categories/ui/myCategory/category_page.dart';
 import '../../../shared/currencies/application/use_cases/handler/command/set_currency_command.dart';
 import '../../../shared/currencies/application/use_cases/handler/queries/get_currency_query.dart';
 import '../../../shared/currencies/application/use_cases/handler/queries/get_default_currency_query.dart';
-import '../../../shared/currencies/domain/aggregates/currency_aggregate.dart';
 import '../../../shared/currencies/infrastructure/adapters/currency_adapter.dart';
 import '../../../shared/currencies/ui/currency_page.dart';
 import '../../../shared/providers/application/use_cases/handler/command/create_provider_command.dart';
 import '../../../shared/providers/application/use_cases/handler/command/delete_provider_command.dart';
 import '../../../shared/providers/application/use_cases/handler/command/update_provider_command.dart';
 import '../../../shared/providers/application/use_cases/handler/queries/get_provider_query.dart';
-import '../../../shared/providers/domain/aggregates/provider_aggregate.dart';
 import '../../../shared/providers/infrastructure/adapters/provider_database_adapter.dart';
 import '../../../shared/providers/ui/myProvider/provider_page.dart';
-import '../../infrastructure/adapters/settings_adapter.dart';
-import '../../application/ports/settings_port.dart';
+
 
 class SettingsPage extends StatelessWidget {
-  final SettingsPort settingsPort = SettingsAdapter();
 
   @override
   Widget build(BuildContext context) {
     final ProviderSQLiteAdapter providerAdapter = ProviderSQLiteAdapter();
-    // final ProviderAggregate providerAggregate = ProviderAggregate(providers: []);
     final createProviderUseCase = CreateProviderCommand(providerAdapter);
     final updateProviderUseCase = UpdateProviderCommand(providerAdapter);
     final deleteProviderUseCase = DeleteProviderCommand(providerAdapter);
     final getProvidersUseCase = GetProvidersQuery(providerAdapter);
 
     final CategorySQLiteAdapter categoryAdapter = CategorySQLiteAdapter();
-    // final CategoryAggregate categoryAggregate = CategoryAggregate(categories: []);
     final createCategoryUseCase = CreateCategoryCommand(categoryAdapter);
     final updateCategoryUseCase = UpdateCategoryCommand(categoryAdapter);
     final deleteCategoryUseCase = DeleteCategoryCommand(categoryAdapter);
     final getCategoriesUseCase = GetCategoriesQuery(categoryAdapter);
 
     final CurrencySQLiteAdapter currencyAdapter = CurrencySQLiteAdapter();
-    final CurrencyAggregate currencyAggregate = CurrencyAggregate(currencies: []);
     final getCurrenciesUseCase = GetCurrenciesQuery(currencyAdapter);
     final getDefaultCurrencyUseCase = GetDefaultCurrencyQuery(currencyAdapter);
     final setDefaultCurrencyUseCase = SetDefaultCurrencyCommand(currencyAdapter);
@@ -62,16 +54,13 @@ class SettingsPage extends StatelessWidget {
                   updateProviderUseCase: updateProviderUseCase,
                   deleteProviderUseCase: deleteProviderUseCase,
                   getProvidersUseCase: getProvidersUseCase,
-                  // providerAggregate: providerAggregate,
                   createCategoryUseCase: createCategoryUseCase,
                   updateCategoryUseCase: updateCategoryUseCase,
                   deleteCategoryUseCase: deleteCategoryUseCase,
                   getCategoriesUseCase: getCategoriesUseCase,
-                  // categoryAggregate: categoryAggregate,
                   getCurrenciesUseCase: getCurrenciesUseCase,
                   getDefaultCurrencyUseCase: getDefaultCurrencyUseCase,
                   setDefaultCurrencyUseCase: setDefaultCurrencyUseCase,
-                  currencyAggregate: currencyAggregate,
                 );
                 break;
               case '/categories':
@@ -80,7 +69,6 @@ class SettingsPage extends StatelessWidget {
                   updateCategoryUseCase: updateCategoryUseCase,
                   deleteCategoryUseCase: deleteCategoryUseCase,
                   getCategoriesUseCase: getCategoriesUseCase,
-                  // aggregate: categoryAggregate,
                 );
                 break;
               case '/providers':
@@ -89,7 +77,6 @@ class SettingsPage extends StatelessWidget {
                   updateProviderUseCase: updateProviderUseCase,
                   deleteProviderUseCase: deleteProviderUseCase,
                   getProvidersUseCase: getProvidersUseCase,
-                  // aggregate: providerAggregate,
                 );
                 break;
               case '/currencies':
@@ -97,7 +84,6 @@ class SettingsPage extends StatelessWidget {
                   getCurrenciesUseCase: getCurrenciesUseCase,
                   getDefaultCurrencyUseCase: getDefaultCurrencyUseCase,
                   setDefaultCurrencyUseCase: setDefaultCurrencyUseCase,
-                  aggregate: currencyAggregate,
                 );
                 break;
               default:
@@ -116,34 +102,28 @@ class SettingsMainPage extends StatelessWidget {
   final UpdateProviderCommand updateProviderUseCase;
   final DeleteProviderCommand deleteProviderUseCase;
   final GetProvidersQuery getProvidersUseCase;
-  final ProviderAggregate providerAggregate;
 
   final CreateCategoryCommand createCategoryUseCase;
   final UpdateCategoryCommand updateCategoryUseCase;
   final DeleteCategoryCommand deleteCategoryUseCase;
   final GetCategoriesQuery getCategoriesUseCase;
-  // final CategoryAggregate categoryAggregate;
 
   final GetCurrenciesQuery getCurrenciesUseCase;
   final GetDefaultCurrencyQuery getDefaultCurrencyUseCase;
   final SetDefaultCurrencyCommand setDefaultCurrencyUseCase;
-  final CurrencyAggregate currencyAggregate;
 
   SettingsMainPage({
     required this.createProviderUseCase,
     required this.updateProviderUseCase,
     required this.deleteProviderUseCase,
     required this.getProvidersUseCase,
-    required this.providerAggregate,
     required this.createCategoryUseCase,
     required this.updateCategoryUseCase,
     required this.deleteCategoryUseCase,
     required this.getCategoriesUseCase,
-    // required this.categoryAggregate,
     required this.getCurrenciesUseCase,
     required this.getDefaultCurrencyUseCase,
     required this.setDefaultCurrencyUseCase,
-    required this.currencyAggregate,
   });
 
   @override

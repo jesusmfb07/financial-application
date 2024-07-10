@@ -1,7 +1,7 @@
 import '../../../../domain/aggregates/income_aggregate.dart';
 import '../../../../domain/entities/income_entry_entity.dart';
 import '../../../ports/income_port.dart';
-import '../../income_use_case.dart';
+import '../../update_income_use_case.dart';
 
 class UpdateIncomeEntryCommand implements UpdateIncomeEntryUseCase {
   final IncomeEntryPort incomeEntryPort;
@@ -9,8 +9,19 @@ class UpdateIncomeEntryCommand implements UpdateIncomeEntryUseCase {
   UpdateIncomeEntryCommand(this.incomeEntryPort);
 
   @override
-  Future<void> execute(IncomeEntryAggregate aggregate, IncomeEntry entry) async {
-    aggregate.updateEntry(entry);
-    await incomeEntryPort.updateEntry(entry);
+  Future<void> execute(IncomeEntryAggregate aggregate) async {
+    // Conversión de IncomeEntryAggregate a IncomeEntry
+    final incomeEntry = IncomeEntry(
+      id: aggregate.id,
+      description: aggregate.description,
+      amount: aggregate.amount,
+      date: aggregate.date,
+      category: aggregate.category,
+      attachmentPath: aggregate.attachmentPath,
+      currencySymbol: aggregate.currencySymbol,
+    );
+
+    // Aquí puedes realizar validaciones si es necesario
+    await incomeEntryPort.updateEntry(incomeEntry);
   }
 }

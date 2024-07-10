@@ -10,8 +10,8 @@ import '../../../../../shared/categories/domain/aggregates/category_aggregate.da
 import '../../../../../shared/categories/domain/entities/category_entity.dart';
 import '../../../../../shared/currencies/domain/entities/currency_entity.dart';
 import '../../../../../shared/currencies/global_config.dart';
-import '../../../../application/use_cases/income_use_case.dart';
-import '../../../../domain/aggregates/income_aggregate.dart';
+import '../../../../application/use_cases/create_income_use_case.dart';
+import '../../../../application/use_cases/update_income_use_case.dart';
 import '../../../../domain/entities/income_entry_entity.dart';
 import 'category_dialog.dart';
 import 'currency_dialog.dart';
@@ -20,7 +20,6 @@ import 'file_picker_button.dart';
 class IncomeEntryForm extends StatefulWidget {
   final CreateIncomeEntryUseCase createEntryUseCase;
   final UpdateIncomeEntryUseCase updateEntryUseCase;
-  final IncomeEntryAggregate aggregate;
   final List<CategoryAggregate> categoryAggregates;
   final CreateCategoryUseCase createCategoryUseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
@@ -31,7 +30,6 @@ class IncomeEntryForm extends StatefulWidget {
   IncomeEntryForm({
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
-    required this.aggregate,
     required this.categoryAggregates,
     required this.createCategoryUseCase,
     required this.getCategoriesUseCase,
@@ -111,7 +109,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
         attachmentPath: attachmentPath,
         currencySymbol: _selectedCurrencySymbol,
       );
-      await widget.createEntryUseCase.execute(widget.aggregate, entry);
+      await widget.createEntryUseCase.execute(entry);
       widget.onSave();
       Navigator.pop(context);
     }
@@ -137,7 +135,7 @@ class _IncomeEntryFormState extends State<IncomeEntryForm> {
         attachmentPath: attachmentPath,
         currencySymbol: _selectedCurrencySymbol,
       );
-      await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
+      await widget.updateEntryUseCase.execute( updatedEntry);
       widget.onSave();
       Navigator.pop(context);
     }

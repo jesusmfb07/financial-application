@@ -1,7 +1,8 @@
 import '../../../../domain/aggregates/provider_aggregate.dart';
 import '../../../../domain/entities/provider_entity.dart';
 import '../../../ports/provider_port.dart';
-import '../../provider_use_case.dart';
+import '../../create_provider_use_case.dart';
+
 
 class CreateProviderCommand implements CreateProviderUseCase {
   final ProviderPort providerPort;

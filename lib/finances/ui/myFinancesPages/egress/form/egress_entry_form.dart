@@ -13,11 +13,12 @@ import '../../../../../shared/categories/domain/aggregates/category_aggregate.da
 import '../../../../../shared/categories/domain/entities/category_entity.dart';
 import '../../../../../shared/currencies/domain/entities/currency_entity.dart';
 import '../../../../../shared/currencies/global_config.dart';
-import '../../../../../shared/providers/application/use_cases/provider_use_case.dart';
+import '../../../../../shared/providers/application/use_cases/create_provider_use_case.dart';
+import '../../../../../shared/providers/application/use_cases/get_providers_use_case.dart';
 import '../../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
 import '../../../../../shared/providers/domain/entities/provider_entity.dart';
-import '../../../../application/use_cases/egress_use_case.dart';
-import '../../../../domain/aggregates/egress_aggregate.dart';
+import '../../../../application/use_cases/create_egress_use_case.dart';
+import '../../../../application/use_cases/update_egress_use_case.dart';
 import '../../../../domain/entities/egress_entry_entity.dart';
 import 'category_dialog.dart';
 import 'currency_dialog.dart';
@@ -26,9 +27,8 @@ import 'file_picker_button.dart';
 class EgressEntryForm extends StatefulWidget {
   final CreateEgressEntryUseCase createEntryUseCase;
   final UpdateEgressEntryUseCase updateEntryUseCase;
-  final EgressEntryAggregate aggregate;
   final List<CategoryAggregate> categoryAggregates;
-  final ProviderAggregate providerAggregate;
+  final List<ProviderAggregate> providerAggregates;
   final CreateCategoryUseCase createCategoryUseCase;
   final GetCategoriesUseCase getCategoriesUseCase;
   final CreateProviderUseCase createProviderUseCase;
@@ -40,9 +40,8 @@ class EgressEntryForm extends StatefulWidget {
   EgressEntryForm({
     required this.createEntryUseCase,
     required this.updateEntryUseCase,
-    required this.aggregate,
     required this.categoryAggregates,
-    required this.providerAggregate,
+    required this.providerAggregates,
     required this.createCategoryUseCase,
     required this.getCategoriesUseCase,
     required this.getProvidersUseCase,
@@ -93,9 +92,14 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
     _categoryController.addListener(_updateButtonState);
 
     _loadCategories();
+    _loadProviders(); // Añadir esta línea
   }
   void _loadCategories() async {
     localCategories = await widget.getCategoriesUseCase.execute();
+    setState(() {});
+  }
+  void _loadProviders() async {
+    localProviders = await widget.getProvidersUseCase.execute();
     setState(() {});
   }
   void _updateButtonState() {
@@ -128,7 +132,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
         attachmentPath: attachmentPath,
         currencySymbol: _selectedCurrencySymbol,
       );
-      await widget.createEntryUseCase.execute(widget.aggregate, entry);
+      await widget.createEntryUseCase.execute(entry);
       widget.onSave();
       Navigator.pop(context);
     }
@@ -157,7 +161,7 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
         attachmentPath: attachmentPath,
         currencySymbol: _selectedCurrencySymbol,
       );
-      await widget.updateEntryUseCase.execute(widget.aggregate, updatedEntry);
+      await widget.updateEntryUseCase.execute(updatedEntry);
       widget.onSave();
       Navigator.pop(context);
     }
@@ -200,12 +204,11 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
         phoneNumber: phoneNumber,
         ruc: ruc,
       );
-      await widget.createProviderUseCase
-          .execute(widget.providerAggregate, newProvider);
+      await widget.createProviderUseCase.execute(newProvider);
 
       setState(() {
-        localProviders.add(newProvider);
-        _providerController.text = newProvider.name;
+        localProviders.add(newProvider); // Asegúrate de añadir el nuevo proveedor a la lista local
+        _providerController.text = newProvider.name; // Actualiza el texto del controlador
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -377,14 +380,14 @@ class _EgressEntryFormState extends State<EgressEntryForm> {
                     .contains(textEditingValue.text.toLowerCase()))
                     .map((provider) => provider.name);
               },
-              onSelected: (String selection) {
-                _providerController.text = selection;
+              onSelected: (String selectedProvider) {
+                _providerController.text = selectedProvider;
               },
               fieldViewBuilder: (BuildContext context,
                   TextEditingController textEditingController,
                   FocusNode focusNode,
                   VoidCallback onFieldSubmitted) {
-                _providerController.text = textEditingController.text;
+                textEditingController.text = _providerController.text;
                 return TextField(
                   controller: textEditingController,
                   focusNode: focusNode,

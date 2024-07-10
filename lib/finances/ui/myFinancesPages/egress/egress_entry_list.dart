@@ -6,21 +6,19 @@ import 'widgets/entry_tile.dart';
 
 class EgressEntryList extends StatelessWidget {
   final GetEgressEntriesUseCase getEntriesUseCase;
-  final EgressEntryAggregate aggregate;
   final Function(EgressEntry) onEdit;
   final Function(String) onViewAttachment;
 
   EgressEntryList({
     required this.getEntriesUseCase,
-    required this.aggregate,
     required this.onEdit,
     required this.onViewAttachment,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<EgressEntry>>(
-      future: getEntriesUseCase.execute(aggregate),
+    return FutureBuilder<List<EgressEntryAggregate>>(
+      future: getEntriesUseCase.execute(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -29,10 +27,23 @@ class EgressEntryList extends StatelessWidget {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(child: Text('No hay egreso'));
         } else {
+          final egressEntries = snapshot.data!.map((aggregate) {
+            return EgressEntry(
+              id: aggregate.id,
+              description: aggregate.description,
+              amount: aggregate.amount,
+              date: aggregate.date,
+              category: aggregate.category,
+              provider: aggregate.provider,
+              attachmentPath: aggregate.attachmentPath,
+              currencySymbol: aggregate.currencySymbol,
+            );
+          }).toList();
+
           return ListView.builder(
-            itemCount: snapshot.data!.length,
+            itemCount: egressEntries.length,
             itemBuilder: (context, index) {
-              final entry = snapshot.data![index];
+              final entry = egressEntries[index];
               return EntryTile(
                 entry: entry,
                 onEdit: onEdit,

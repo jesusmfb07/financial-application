@@ -1,7 +1,6 @@
-import '../../../../domain/aggregates/currency_aggregate.dart';
 import '../../../../domain/entities/currency_entity.dart';
 import '../../../ports/currency_port.dart';
-import '../../currency_use_case.dart';
+import '../../get_currencies_use_case.dart';
 
 class GetCurrenciesQuery implements GetCurrenciesUseCase {
   final CurrencyPort currencyPort;
@@ -9,7 +8,7 @@ class GetCurrenciesQuery implements GetCurrenciesUseCase {
   GetCurrenciesQuery(this.currencyPort);
 
   @override
-  Future<List<Currency>> execute(CurrencyAggregate aggregate) async {
+  Future<List<Currency>> execute() async {
     return await currencyPort.getCurrencies();
   }
 }

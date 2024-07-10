@@ -1,13 +1,14 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import '../../../../shared/categories/application/use_cases/create_category_use_case.dart';
 import '../../../../shared/categories/application/use_cases/get_category_use_case.dart';
 import '../../../../shared/categories/domain/aggregates/category_aggregate.dart';
-import '../../../../shared/providers/application/use_cases/provider_use_case.dart';
+import '../../../../shared/providers/application/use_cases/create_provider_use_case.dart';
+import '../../../../shared/providers/application/use_cases/get_providers_use_case.dart';
 import '../../../../shared/providers/domain/aggregates/provider_aggregate.dart';
-import '../../../application/use_cases/egress_use_case.dart';
+import '../../../application/use_cases/create_egress_use_case.dart';
 import '../../../application/use_cases/get_egress_use_case.dart';
+import '../../../application/use_cases/update_egress_use_case.dart';
 import '../../../domain/aggregates/egress_aggregate.dart';
 import '../../../domain/entities/egress_entry_entity.dart';
 import '../file_storage_service.dart';
@@ -24,7 +25,6 @@ class EgressPage extends StatefulWidget {
   final CreateCategoryUseCase createCategoryUseCase;
   final GetProvidersUseCase getProvidersUseCase;
   final CreateProviderUseCase createProviderUseCase;
-  final EgressEntryAggregate aggregate;
   final List<CategoryAggregate> categoryAggregates;
   final List<ProviderAggregate> providerAggregates;
   final String? attachmentPath;
@@ -38,7 +38,6 @@ class EgressPage extends StatefulWidget {
     required this.createCategoryUseCase,
     required this.getProvidersUseCase,
     required this.createProviderUseCase,
-    required this.aggregate,
     required this.categoryAggregates,
     required this.providerAggregates,
     this.attachmentPath,
@@ -51,7 +50,7 @@ class EgressPage extends StatefulWidget {
 
 class _EgressPageState extends State<EgressPage> {
   final FileStorageService _fileStorageService = FileStorageService();
-
+List<EgressEntryAggregate> _egressEntry =[];
   @override
   void initState() {
     super.initState();
@@ -61,10 +60,9 @@ class _EgressPageState extends State<EgressPage> {
   }
 
   Future<void> _loadEntries() async {
-    final entries = await widget.getEntriesUseCase.execute(widget.aggregate);
+    final entries = await widget.getEntriesUseCase.execute();
     setState(() {
-      widget.aggregate.entries.clear();
-      widget.aggregate.entries.addAll(entries);
+      _egressEntry = entries;
     });
   }
 
@@ -113,7 +111,7 @@ class _EgressPageState extends State<EgressPage> {
     return Scaffold(
       body: EgressEntryList(
         getEntriesUseCase: widget.getEntriesUseCase,
-        aggregate: widget.aggregate,
+        // aggregate: widget.aggregate,
         onEdit: (entry) => _showEntryDialog(entry: entry),
         onViewAttachment: _viewAttachment,
       ),
@@ -131,11 +129,11 @@ class _EgressPageState extends State<EgressPage> {
         return EgressEntryForm(
           createEntryUseCase: widget.createEntryUseCase,
           updateEntryUseCase: widget.updateEntryUseCase,
-          aggregate: widget.aggregate,
+          // aggregate: widget.aggregate,
           categoryAggregates: widget.categoryAggregates,
           getCategoriesUseCase: widget.getCategoriesUseCase,
           createCategoryUseCase: widget.createCategoryUseCase,
-          providerAggregate: widget.providerAggregates,
+          providerAggregates: widget.providerAggregates,
           getProvidersUseCase: widget.getProvidersUseCase,
           createProviderUseCase: widget.createProviderUseCase,
           entry: entry,

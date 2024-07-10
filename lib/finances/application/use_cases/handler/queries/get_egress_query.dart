@@ -9,7 +9,18 @@ class GetEgressEntriesQuery implements GetEgressEntriesUseCase {
   GetEgressEntriesQuery(this.egressEntryPort);
 
   @override
-  Future<List<EgressEntry>> execute(EgressEntryAggregate aggregate) async {
-    return await egressEntryPort.getEntries();
+  Future<List<EgressEntryAggregate>> execute() async {
+    final entries = await egressEntryPort.getEntries();
+    // Convertir la lista de EgressEntry a EgressEntryAggregate
+    return entries.map((entry) => EgressEntry(
+      id: entry.id,
+      description: entry.description,
+      amount: entry.amount,
+      date: entry.date,
+      category: entry.category,
+      provider: entry.provider,
+      attachmentPath: entry.attachmentPath,
+      currencySymbol: entry.currencySymbol,
+    )).toList();
   }
 }
