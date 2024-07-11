@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import '../../../shared/categories/application/use_cases/handler/command/create_category_command.dart';
 import '../../../shared/categories/application/use_cases/handler/command/delete_category_command.dart';
 import '../../../shared/categories/application/use_cases/handler/command/update_category_command.dart';
@@ -17,7 +16,7 @@ import '../../../shared/providers/application/use_cases/handler/command/update_p
 import '../../../shared/providers/application/use_cases/handler/queries/get_provider_query.dart';
 import '../../../shared/providers/infrastructure/adapters/provider_database_adapter.dart';
 import '../../../shared/providers/ui/myProvider/provider_page.dart';
-import 'backup_manager.dart'; // Importa el BackupManager
+import '../../infrastructure/backup_manager.dart'; // Importa el BackupManager
 import 'settings_main_page.dart'; // Importa SettingsMainPage
 
 class SettingsPage extends StatelessWidget {

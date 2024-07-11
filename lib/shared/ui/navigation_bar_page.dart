@@ -87,7 +87,7 @@ import 'package:provider/provider.dart'; // Importa Provider si no está ya impo
 import '../../chat/ui/pages/expense_manager_page.dart';
 import '../../finances/ui/myFinancesPages/my_finance_page.dart';
 import '../../register/ui/myRegister/register_page.dart';
-import '../../settings/ui/mySettings/backup_manager.dart';
+import '../../settings/infrastructure/backup_manager.dart';
 import '../../settings/ui/mySettings/settings_page.dart';
 
 
